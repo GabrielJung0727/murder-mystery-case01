@@ -119,3 +119,16 @@ electron      메인 프로세스 (호스트 서버 시작·중지), preload
 - 새 버전 내는 법: `package.json` 버전을 올리고 `npm run dist` → GitHub 릴리스에 **`Setup-<버전>.exe`, `.blockmap`, `latest.yml` 세 파일을 모두** 올린다.
   `latest.yml`이 없으면 기존 사용자에게 업데이트가 뜨지 않는다.
 - 업데이트 동작 시험: 로컬에서 새 버전 파일 세 개를 http로 띄우고 `GONGJAKSO_UPDATE_URL=http://127.0.0.1:포트/` 환경 변수로 설치된 게임을 실행한다.
+
+## 온라인 플레이 (다른 장소)
+
+포트포워딩 없이, 6명이 같은 와이파이에 있는 것처럼 접속하는 방법입니다. 무료입니다.
+
+1. **모두:** [tailscale.com/download](https://tailscale.com/download)에서 Tailscale을 설치하고 로그인합니다.
+2. **호스트:** Tailscale 관리 화면([login.tailscale.com/admin](https://login.tailscale.com/admin))에서 **Invite users**로 친구들을 초대합니다. 초대받은 친구는 메일의 링크로 들어옵니다.
+3. **호스트:** 게임에서 **방 만들기**를 누르면 대기실에 접속 주소가 여러 개 뜹니다. 그중 **`100.`으로 시작하는 주소**(예: `100.84.12.7:4777`)를 친구들에게 알려 줍니다.
+4. **친구:** **참가하기**에서 그 주소를 입력합니다.
+
+- 처음 방을 열 때 Windows 방화벽 창이 뜨면 **허용**(개인 네트워크)을 눌러 주세요.
+- 접속이 안 되면 모두의 Tailscale 아이콘이 **Connected**인지 확인하세요.
+- Tailscale 무료 플랜은 **6명까지**입니다(5인 게임은 충분). 그보다 많으면 초대 대신 호스트 PC를 **Share**(기기 공유)로 보내면 인원 제한 없이 접속할 수 있습니다.
