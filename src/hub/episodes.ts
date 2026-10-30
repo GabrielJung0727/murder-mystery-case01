@@ -19,6 +19,8 @@ export interface Episode {
   meta: string[];
   /** 표지·책등 색 */
   cover: { base: string; edge: string; ink: string };
+  /** 고를 때의 연출. blood: 책등에 핏물이 흐르고 브리핑에 혈흔이 번진다 */
+  mood?: 'blood';
   /** 없으면 '집필 중'으로 꽂혀만 있다 */
   Root?: LazyExoticComponent<ComponentType<EpisodeProps>>;
 }
@@ -33,6 +35,7 @@ export const EPISODES: Episode[] = [
     blurb: '새벽 1시 03분, 펜션 쪽방에서 누군가가 쓰러진 채 발견됐다. 남은 다섯 사람 모두 무언가를 숨기고 있다.',
     meta: ['1~5인', '약 1시간', '사건 기록 3'],
     cover: { base: '#5a1518', edge: '#2e0a0c', ink: '#e9d9c0' },
+    mood: 'blood',
     Root: lazy(() => import('../ui/App').then((m) => ({ default: m.App }))),
   },
   {

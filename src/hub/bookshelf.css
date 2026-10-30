@@ -80,7 +80,7 @@
     linear-gradient(180deg, rgba(138, 107, 65, .3), #1a110a 50%, rgba(0, 0, 0, .8)) 0 86px / 100% 3px no-repeat,
     linear-gradient(180deg, rgba(138, 107, 65, .3), #1a110a 50%, rgba(0, 0, 0, .8)) 0 calc(100% - 78px) / 100% 3px no-repeat,
     linear-gradient(180deg, rgba(156, 122, 76, .4), #1a110a 50%, rgba(0, 0, 0, .9)) 0 calc(100% - 44px) / 100% 4px no-repeat; }
-.b-spine > :not(.b-bands) { position: relative; z-index: 1; }
+.b-spine > :not(.b-bands):not(.blood-drip) { position: relative; z-index: 1; }
 .book3d.on .b-spine { box-shadow: 0 0 0 1px rgba(229, 169, 60, .8), 0 15px 35px rgba(0, 0, 0, .95), 0 0 25px rgba(212, 163, 89, .35); }
 .book3d.on .b-spine::after { border-color: rgba(229, 175, 80, .45); }
 .book3d.soon:not(.on) .b-spine { filter: saturate(.8) brightness(.9); }
@@ -98,6 +98,19 @@
 .spine-band { align-self: stretch; margin: 0 6px; text-align: center; padding: 2px 0; font-size: 9px; letter-spacing: .08em; font-weight: 800;
   color: #17100a; background: #bfa374; border-radius: 1px; box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
 
+/* 살인 추리(mood: blood): 금빛 대신 맥박 뛰듯 점멸하는 핏빛 오라, 책등을 타고 흐르는 핏물 */
+.book3d.on.blood .b-spine { animation: blood-aura 2.4s ease-in-out infinite; }
+.book3d.on.blood .b-spine::after { border-color: rgba(180, 40, 40, .5); }
+@keyframes blood-aura {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(180, 40, 40, .7), 0 15px 35px rgba(0, 0, 0, .95), 0 0 16px rgba(138, 3, 3, .35); }
+  50% { box-shadow: 0 0 0 1px rgba(200, 50, 50, .85), 0 15px 35px rgba(0, 0, 0, .95), 0 0 36px rgba(160, 8, 8, .65); }
+}
+.blood-drip { position: absolute; top: 40px; width: 4px; height: 0; border-radius: 0 0 2px 2px; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 120, 120, .35) 0 1px, transparent 1px), linear-gradient(180deg, #b30f0f, #8a0606 70%, #5c0202); box-shadow: 0 0 6px rgba(179, 15, 15, .8);
+  animation: spine-drip 1.8s ease-in forwards; }
+.blood-drip::after { content: ''; position: absolute; left: -1.5px; bottom: -4px; width: 7px; height: 8px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 35% 30%, #e04545 0 1px, #a50b0b 2px, #6a0303); }
+@keyframes spine-drip { 0% { height: 0; opacity: .85; } 70% { height: var(--len); opacity: .95; } 100% { height: calc(var(--len) + 6%); opacity: .75; } }
+
 /* 브리핑: 세월이 깃든 붉은 가죽과 황동 테두리 */
 .brief { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 22px; align-items: center; padding: 22px 26px; border-radius: 3px;
   color: #f7efe4; border: 1px solid #6e2b26;
@@ -105,6 +118,8 @@
   box-shadow: inset 0 1px 0 rgba(255, 215, 160, .15), inset 0 0 40px rgba(0, 0, 0, .65), 0 25px 55px rgba(0, 0, 0, .95); animation: brief-in .35s ease-out; }
 .brief::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(184, 134, 82, .25); pointer-events: none; }
 .brief.sealed { border-color: #3a332d; color: #a69a8c; }
+.brief .splat { position: absolute; right: 10px; top: 6px; width: 190px; height: 126px; opacity: .55; pointer-events: none; }
+.brief > :not(.splat) { position: relative; z-index: 1; }
 @keyframes brief-in { from { opacity: 0; transform: translateY(8px); } }
 .brief-face { display: flex; flex-direction: column; gap: 9px; text-align: left; }
 .brief-tag { font-family: var(--type); font-size: 11px; letter-spacing: .22em; color: #d49a7d; }
@@ -135,6 +150,7 @@
   .brief-side { align-items: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hub-ray, .brief, .hub-dust span { animation: none; }
+  .hub-ray, .brief, .hub-dust span, .book3d.on.blood .b-spine { animation: none; }
+  .blood-drip { animation: none; height: var(--len); }
   .book3d { transition: none; }
 }

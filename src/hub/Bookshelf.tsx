@@ -43,6 +43,34 @@ const DUST = Array.from({ length: 28 }, (_, i) => ({
   delay: (i % 5) * -1.5,
 }));
 
+/** 책등의 핏줄기: 위치, 흘러내리는 길이, 시작 지연 */
+const DRIPS = [
+  { left: '22%', len: '58%', delay: '0s' },
+  { left: '68%', len: '72%', delay: '.4s' },
+  { left: '44%', len: '34%', delay: '.9s' },
+];
+
+/** 브리핑 패널 모서리의 오래된 혈흔 */
+function Splatter() {
+  return (
+    <svg className="splat" viewBox="0 0 180 120" aria-hidden>
+      <g fill="#2a0303" filter="url(#hub-splat)">
+        <circle cx="128" cy="38" r="22" />
+        <circle cx="110" cy="30" r="12" />
+        <circle cx="146" cy="52" r="14" />
+        <circle cx="120" cy="56" r="10" />
+        <path d="M140 60 q3 30 1 46 q-2 6 -5 0 q-2 -16 0 -44z" />
+        <circle cx="80" cy="18" r="4" />
+        <circle cx="92" cy="62" r="3" />
+        <circle cx="168" cy="22" r="5" />
+        <circle cx="160" cy="80" r="2.5" />
+        <circle cx="72" cy="40" r="2" />
+        <circle cx="100" cy="8" r="2.5" />
+      </g>
+    </svg>
+  );
+}
+
 const OPEN_MS = 700;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const epNo = (n: number) => String(n).padStart(2, '0');
@@ -86,6 +114,10 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
         <filter id="hub-grain">
           <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
           <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0" />
+        </filter>
+        <filter id="hub-splat">
+          <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" />
+          <feDisplacementMap in="SourceGraphic" scale="8" />
         </filter>
       </svg>
 
@@ -148,10 +180,11 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
               {SLOTS.map((s, i) => {
                 const [h, w] = SIZES[i % SIZES.length];
                 const state = s.sealed ? 'sealed' : s.Root ? '' : 'soon';
+                const blood = s.mood === 'blood';
                 return (
                   <button
                     key={s.id}
-                    className={`book3d ${i === sel ? 'on' : ''} ${state}`}
+                    className={`book3d ${i === sel ? 'on' : ''} ${state} ${blood ? 'blood' : ''}`}
                     style={{ height: `${h}%`, width: w, '--base': s.cover.base, '--edge': s.cover.edge, '--ink': s.cover.ink } as React.CSSProperties}
                     onClick={() => pick(i)}
                     onDoubleClick={() => i === sel && open()}
@@ -161,6 +194,10 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
                     <span className="b-pages" aria-hidden />
                     <span className="b-spine">
                       <span className="b-bands" aria-hidden />
+                      {/* 꺼낸 순간 책등을 타고 핏물이 흘러내린다 (고를 때마다 다시 그려져 처음부터 흐른다) */}
+                      {blood && i === sel && DRIPS.map((d) => (
+                        <span key={d.left} className="blood-drip" aria-hidden style={{ left: d.left, '--len': d.len, animationDelay: d.delay } as React.CSSProperties} />
+                      ))}
                       <span className="spine-no">EP.{epNo(s.no)}</span>
                       <span className={`spine-title ${s.title.length > 7 && !s.sealed ? 'long' : ''}`}>
                         {s.sealed ? '봉인기록' : s.title}
@@ -180,9 +217,10 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
 
         <section
           key={slot.id}
-          className={`brief ${slot.sealed ? 'sealed' : ''}`}
+          className={`brief ${slot.sealed ? 'sealed' : ''} ${slot.mood === 'blood' ? 'blood' : ''}`}
           style={{ '--base': slot.cover.base, '--edge': slot.cover.edge, '--ink': slot.cover.ink } as React.CSSProperties}
         >
+          {slot.mood === 'blood' && <Splatter />}
           <div className="brief-face">
             <span className="brief-tag">EPISODE {epNo(slot.no)} · {slot.tagline}</span>
             <h2>{slot.title}</h2>
