@@ -1,4 +1,4 @@
-// 에피소드 목록. 책장(src/hub/Bookshelf.tsx)에 꽂히는 책 한 권이 에피소드 하나다.
+// 에피소드 목록. 공작소 도서관의 책장(src/hub/Bookshelf.tsx)에 꽂히는 책 한 권이 에피소드 하나다.
 // 새 에피소드는 여기에 한 줄 추가하고, Root 에 그 에피소드의 첫 화면 컴포넌트를 붙인다.
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 

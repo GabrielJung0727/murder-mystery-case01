@@ -76,7 +76,7 @@ export function Title({ onSingle, onOnline, onShelf }: { onSingle: () => void; o
           </button>
         </div>
         <div className="title-actions">
-          <button className="file-tab" onClick={() => { audio.sfx('paper', 0.6); onShelf(); }}><Library size={15} /> 책장으로</button>
+          <button className="file-tab" onClick={() => { audio.sfx('paper', 0.6); onShelf(); }}><Library size={15} /> 도서관으로</button>
           <button className="file-tab" onClick={() => open('settings')}><SettingsIcon size={15} /> 설정</button>
           <button className="file-tab" onClick={() => open('gallery')}><Images size={15} /> 갤러리 & 다시보기</button>
           <button className="file-tab" onClick={() => open('credits')}><FileText size={15} /> 사건 기록실</button>

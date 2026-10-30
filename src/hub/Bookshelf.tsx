@@ -1,29 +1,46 @@
-import { BookOpen, Power, Settings as SettingsIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { BookOpen, Lock, Power, Settings as SettingsIcon, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { audio } from '../audio/director';
 import { APP_VERSION, bridge } from '../client/bridge';
-import { Atmosphere } from '../ui/Atmosphere';
+import { display } from '../client/display';
 import { Settings } from '../ui/Settings';
 import { MenuSound } from '../ui/VolumeControl';
 import { EPISODES, lastEpisodeId, rememberEpisode, type Episode } from './episodes';
 import './bookshelf.css';
 
-/** 아직 나오지 않은 책 자리 (장식용, 고를 수 없다) */
-const BLANKS = [
-  { h: 86, w: 44, c: '#2c2620' },
-  { h: 92, w: 38, c: '#22262c' },
-  { h: 80, w: 50, c: '#30241e' },
-  { h: 88, w: 40, c: '#262a22' },
+/** 책장 한 칸. 아직 나오지 않은 자리는 봉인된 책으로 채운다 */
+type Slot = Episode & { sealed?: boolean };
+
+const SHELF_SIZE = 10;
+const SLOTS: Slot[] = [
+  ...EPISODES,
+  ...Array.from({ length: Math.max(0, SHELF_SIZE - EPISODES.length) }, (_, i): Slot => ({
+    id: `sealed-${i}`,
+    no: EPISODES.length + i + 1,
+    title: '봉인된 기록서',
+    genre: '미공개',
+    tagline: 'CLASSIFIED ARCHIVE',
+    blurb: '아직 서고 깊은 곳에 봉인되어 있는 기록입니다.',
+    meta: ['미공개'],
+    cover: { base: '#1c1917', edge: '#0b0908', ink: '#6f665d' },
+    sealed: true,
+  })),
 ];
 
-const OPEN_MS = 650;
+/** 책마다 높이(선반 안쪽 %)와 두께(px)를 조금씩 달리한다 */
+const SIZES: [number, number][] = [[90, 64], [86, 62], [88, 56], [81, 52], [92, 60], [84, 54], [87, 58], [91, 62], [82, 50], [89, 56]];
+
+const OPEN_MS = 700;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const epNo = (n: number) => String(n).padStart(2, '0');
 
 export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
-  const [sel, setSel] = useState(() => Math.max(0, EPISODES.findIndex((e) => e.id === lastEpisodeId())));
+  const [sel, setSel] = useState(() => Math.max(0, SLOTS.findIndex((e) => e.id === lastEpisodeId())));
   const [opening, setOpening] = useState(false);
   const [settings, setSettings] = useState(false);
-  const ep = EPISODES[sel];
+  const { effects } = useSyncExternalStore(display.subscribe, display.get);
+  const root = useRef<HTMLDivElement>(null);
+  const slot = SLOTS[sel];
 
   const pick = (i: number) => {
     if (i === sel || opening) return;
@@ -32,19 +49,26 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
   };
 
   const open = () => {
-    if (!ep.Root || opening) return;
+    if (!slot.Root || opening) return;
     audio.sfx('paper', 0.8);
-    rememberEpisode(ep.id);
-    if (reducedMotion()) return onOpen(ep);
+    rememberEpisode(slot.id);
+    if (reducedMotion()) return onOpen(slot);
     setOpening(true);
-    setTimeout(() => onOpen(ep), OPEN_MS);
+    setTimeout(() => onOpen(slot), OPEN_MS);
   };
+
+  // 마우스를 따라 서가 전체가 살짝 기운다 (렌더 없이 CSS 변수만 바꾼다)
+  const tilt = (x: number, y: number) => {
+    root.current?.style.setProperty('--tx', x.toFixed(2));
+    root.current?.style.setProperty('--ty', y.toFixed(2));
+  };
+  const parallax = effects && !reducedMotion();
 
   useEffect(() => {
     if (settings) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') pick(Math.min(EPISODES.length - 1, sel + 1));
-      else if (e.key === 'ArrowLeft') pick(Math.max(0, sel - 1));
+      if (e.key === 'ArrowRight') pick((sel + 1) % SLOTS.length);
+      else if (e.key === 'ArrowLeft') pick((sel - 1 + SLOTS.length) % SLOTS.length);
       else if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) open();
     };
     window.addEventListener('keydown', onKey);
@@ -52,63 +76,92 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
   });
 
   return (
-    <div className={`screen hub ${opening ? 'opening' : ''}`}>
-      <div className="hub-lamp" />
+    <div
+      ref={root}
+      className={`screen hub ${opening ? 'opening' : ''}`}
+      onMouseMove={parallax ? (e) => tilt((e.clientX / window.innerWidth - 0.5) * 8, (e.clientY / window.innerHeight - 0.5) * -5) : undefined}
+      onMouseLeave={parallax ? () => tilt(0, 0) : undefined}
+    >
+      <div className="hub-bg" aria-hidden>
+        <div className="hub-stacks" />
+        <div className="hub-ray" />
+        {effects && <div className="hub-dust">{Array.from({ length: 14 }, (_, i) => <span key={i} />)}</div>}
+        <div className="hub-vignette" />
+      </div>
+
       <div className="hub-wrap">
         <header className="hub-head">
-          <span className="hub-kicker">ARCHIVE · 사건 서재</span>
-          <h1>어느 기록을 펼치시겠습니까</h1>
+          <span className="hub-kicker">THE GONGJAKSO LIBRARY</span>
+          <h1>공작소 도서관</h1>
+          <p className="hub-sub"><Sparkles size={12} /> 어느 기록을 펼치시겠습니까</p>
         </header>
 
-        <div className="shelf">
-          <div className="shelf-row">
-            <span className="bookend" />
-            {EPISODES.map((e, i) => (
-              <button
-                key={e.id}
-                className={`book ${i === sel ? 'on' : ''} ${e.Root ? '' : 'soon'}`}
-                style={{ '--base': e.cover.base, '--edge': e.cover.edge, '--ink': e.cover.ink } as React.CSSProperties}
-                onClick={() => pick(i)}
-                onDoubleClick={() => i === sel && open()}
-                aria-pressed={i === sel}
-                aria-label={`에피소드 ${e.no} ${e.title}${e.Root ? '' : ' (집필 중)'}`}
-              >
-                <span className="spine-no">EP.{String(e.no).padStart(2, '0')}</span>
-                <span className="spine-title" style={{ fontSize: e.title.length > 7 ? 14 : undefined }}>{e.title}</span>
-                <span className="spine-genre">{e.genre}</span>
-                {!e.Root && <span className="spine-band">집필 중</span>}
-              </button>
-            ))}
-            {BLANKS.map((b, i) => (
-              <span key={i} className="book blank" aria-hidden style={{ height: `${b.h}%`, width: b.w, background: b.c }} />
-            ))}
-            <span className="bookend right" />
+        <div className="stage">
+          <div className="case">
+            <div className="case-back" />
+            <div className="case-side l" />
+            <div className="case-side r" />
+            <div className="case-top" />
+            <div className="case-floor" />
+            <div className="case-row">
+              {SLOTS.map((s, i) => {
+                const [h, w] = SIZES[i % SIZES.length];
+                const state = s.sealed ? 'sealed' : s.Root ? '' : 'soon';
+                return (
+                  <button
+                    key={s.id}
+                    className={`book3d ${i === sel ? 'on' : ''} ${state}`}
+                    style={{ height: `${h}%`, width: w, '--base': s.cover.base, '--edge': s.cover.edge, '--ink': s.cover.ink } as React.CSSProperties}
+                    onClick={() => pick(i)}
+                    onDoubleClick={() => i === sel && open()}
+                    aria-pressed={i === sel}
+                    aria-label={`에피소드 ${s.no} ${s.title}${s.sealed ? ' (봉인)' : s.Root ? '' : ' (집필 중)'}`}
+                  >
+                    <span className="b-spine">
+                      <span className="spine-no">EP.{epNo(s.no)}</span>
+                      <span className={`spine-title ${s.title.length > 7 && !s.sealed ? 'long' : ''}`}>
+                        {s.sealed ? '봉인기록' : s.title}
+                      </span>
+                      <span className="spine-genre">{s.sealed ? <Lock size={12} /> : s.genre}</span>
+                      {state === 'soon' && <span className="spine-band">집필 중</span>}
+                    </span>
+                    <span className="b-cover" aria-hidden>
+                      <span className="b-cover-in">
+                        <small>EP.{epNo(s.no)} ARCHIVE</small>
+                        <b>{s.title}</b>
+                        <small>GONGJAKSO</small>
+                      </span>
+                    </span>
+                    <span className="b-pages" aria-hidden />
+                  </button>
+                );
+              })}
+            </div>
+            <div className="case-lip" />
           </div>
-          <div className="shelf-board" />
         </div>
 
-        <section
-          key={ep.id}
-          className="cover"
-          style={{ '--base': ep.cover.base, '--edge': ep.cover.edge, '--ink': ep.cover.ink } as React.CSSProperties}
-        >
-          <div className="cover-face">
-            <span className="cover-tag">EPISODE {String(ep.no).padStart(2, '0')} · {ep.tagline}</span>
-            <h2>{ep.title}</h2>
-            <p>{ep.blurb}</p>
-            <div className="cover-meta">{ep.meta.map((m) => <span key={m}>{m}</span>)}</div>
-          </div>
-          <div className="cover-side">
-            {ep.Root ? (
-              <button className="btn primary cover-open" onClick={open} disabled={opening}>
-                <BookOpen size={16} /> 기록 펼치기
+        <div className="brief-stage">
+          <section
+            key={slot.id}
+            className={`brief ${slot.sealed ? 'sealed' : ''}`}
+            style={{ '--base': slot.cover.base, '--edge': slot.cover.edge, '--ink': slot.cover.ink } as React.CSSProperties}
+          >
+            <div className="brief-face">
+              <span className="brief-tag">EPISODE {epNo(slot.no)} · {slot.tagline}</span>
+              <h2>{slot.title}</h2>
+              <p>{slot.blurb}</p>
+              <div className="brief-meta">{slot.meta.map((m) => <span key={m}>{m}</span>)}</div>
+            </div>
+            <div className="brief-side">
+              <button className="btn primary brief-open" onClick={open} disabled={!slot.Root || opening}>
+                {slot.Root ? <BookOpen size={16} /> : <Lock size={16} />}
+                {slot.Root ? '기록 펼치기' : slot.sealed ? '봉인된 기록' : '집필 중인 기록'}
               </button>
-            ) : (
-              <span className="cover-stamp">집필 중</span>
-            )}
-            <span className="muted cover-hint">← → 로 고르고 Enter 로 펼치기</span>
-          </div>
-        </section>
+              <span className="brief-hint">← → 로 고르고 Enter 로 펼치기</span>
+            </div>
+          </section>
+        </div>
 
         <div className="title-actions">
           <button className="file-tab" onClick={() => { audio.sfx('paper', 0.6); setSettings(true); }}><SettingsIcon size={15} /> 설정</button>
@@ -120,7 +173,6 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
         </div>
       </div>
       <div className="build-line">BUILD v{APP_VERSION}-STABLE // {bridge ? 'STANDALONE .EXE' : 'WEB PREVIEW'}</div>
-      <Atmosphere intensity={0.45} />
       <MenuSound />
       {settings && <Settings onClose={() => setSettings(false)} />}
     </div>
