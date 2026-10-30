@@ -131,8 +131,9 @@ electron      메인 프로세스 (호스트 서버 시작·중지), preload
 ### Render에 서버 올리기 (처음 한 번)
 
 1. [render.com](https://render.com)에 GitHub 계정으로 가입한다.
-2. Dashboard → **New → Blueprint** → 이 저장소를 고르면 `render.yaml`을 읽어 `gongjakso-night` 서비스를 만든다 → **Apply**.
-3. 배포가 끝나면 `https://gongjakso-night.onrender.com/health` 에서 `{"ok":true,...}`가 보이면 된다.
+2. Dashboard → **New → Blueprint** → 이 저장소를 고르면 `render.yaml`을 읽어 서비스를 만든다 → **Apply**.
+   (또는 New Web Service: Build `npm ci --ignore-scripts && npm run build:cloud`, Start `npm run start:cloud`, Health `/health`, Free)
+3. 배포가 끝나면 `https://murder-mystery-case01.onrender.com/health` 에서 `{"ok":true,...}`가 보이면 된다. (현재 운영 주소)
 4. 서비스 이름이 이미 쓰여 주소가 달라졌다면 `src/net/cloud.ts`의 `DEFAULT_CLOUD_URL`을 바꿔 다시 배포한다
    (게임의 [인터넷 서버 주소]에서 임시로 바꿀 수도 있다).
 

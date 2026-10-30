@@ -2,7 +2,7 @@
 # Render 대시보드 → New → Blueprint → 이 저장소를 고르면 아래대로 만들어진다.
 services:
   - type: web
-    name: gongjakso-night
+    name: murder-mystery-case01
     runtime: node
     plan: free
     region: singapore
