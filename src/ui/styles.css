@@ -128,7 +128,8 @@ p { margin: 0; }
 /* ---------- 대시보드 ---------- */
 .dash { position: relative; height: 100%; display: grid; grid-template-rows: 60px 1fr;
   background: radial-gradient(1200px 600px at 50% -10%, rgba(90, 16, 20, .22), transparent 60%), var(--bg); }
-.header { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; padding: 0 18px; background: linear-gradient(#0e131d, #0a0e16); border-bottom: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+/* z-index 3: 아래 패널(.body3, z-index 1) 위로 소리 설정 팝업이 펼쳐지도록 */
+.header { position: relative; z-index: 3; display: flex; align-items: center; gap: 16px; padding: 0 18px; background: linear-gradient(#0e131d, #0a0e16); border-bottom: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.5); }
 .header .brand { font-family: var(--serif); font-weight: 800; font-size: 18px; letter-spacing: .14em; color: #ece5d9; text-shadow: 0 0 10px rgba(214, 58, 58, .35); }
 .header .brand small { display: block; font-family: var(--type); font-size: 9.5px; letter-spacing: .28em; color: #c84a4a; font-weight: 400; text-shadow: none; }
 .live-badge { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 6px; border: 1px solid rgba(160, 40, 40, .55); background: rgba(70, 12, 14, .55); color: #ff8c8c; font-family: var(--type); font-size: 11px; letter-spacing: .12em; }
