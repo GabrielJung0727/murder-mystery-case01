@@ -363,3 +363,10 @@
 .achv-card.got { border-style: solid; border-color: #a8262b; background: rgba(60, 14, 16, .4); color: #e2cf9f; }
 .achv-card.got b { color: #f1e2c8; }
 .achv-card .when { font-family: var(--type); font-size: 10.5px; color: #a08a64; }
+
+/* 온라인: 인터넷 방 · 같은 와이파이 방 */
+.lan-host { margin-top: 10px; font-size: 13px; }
+.lan-host summary { cursor: pointer; color: #6d5a3e; }
+.desk > .lan-host summary { color: #a08a64; }
+.lan-host .row { gap: 10px; margin-top: 6px; }
+.room-code .code { display: block; font-family: var(--type); font-size: 44px; letter-spacing: .35em; color: #1c140a; margin: 4px 0; }

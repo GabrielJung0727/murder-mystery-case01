@@ -25,8 +25,6 @@ export interface CaseData {
   truthSummary: string;
   truthTimeline: { time: string; event: string; cards: string }[];
   afterword: string;
-  /** 엔딩·진상 나레이션 녹음이 이 판의 본문과 같은가 (원작만 녹음됨) */
-  voiced: boolean;
   isCorrect: (kind: 'motive' | 'time' | 'method', id: string | null) => boolean;
 }
 
@@ -52,7 +50,6 @@ function build(v: CaseVariant): CaseData {
     truthSummary: v.truthSummary ?? TRUTH_SUMMARY,
     truthTimeline: v.truthTimeline ?? TRUTH_TIMELINE,
     afterword: v.afterword ?? AFTERWORD,
-    voiced: v.id === 'v0',
     isCorrect: (kind, id) => {
       if (!id) return false;
       if (kind === 'motive') return id === v.motive;

@@ -14,7 +14,7 @@ const TIMER_FIELDS: { key: keyof Timers; label: string }[] = [
 ];
 const TILTS = [-1.2, 0.8, -0.5, 1.1, -0.9];
 
-export function Lobby({ session, host, onExit }: { session: OnlineSession; host?: HostInfo; onExit: () => void }) {
+export function Lobby({ session, host, room, onExit }: { session: OnlineSession; host?: HostInfo; room?: string; onExit: () => void }) {
   const state = session.state!;
   const humans = state.seats.filter((s) => s.kind === 'human').length;
 
@@ -27,6 +27,13 @@ export function Lobby({ session, host, onExit }: { session: OnlineSession; host?
         wide
         aside={<button className="btn ghost" onClick={onExit}>나가기</button>}
       >
+        {room && (
+          <div className="paper room-code" style={{ transform: 'rotate(-.4deg)' }}>
+            <h4>방 코드</h4>
+            <span className="code">{room}</span>
+            <p className="muted" style={{ fontSize: 12 }}>친구들은 [온라인 → 참가하기]에 이 코드를 입력하면 됩니다. 어디서든 들어올 수 있습니다.</p>
+          </div>
+        )}
         {host && (
           <div className="paper" style={{ transform: 'rotate(-.4deg)' }}>
             <h4>친구에게 알려줄 주소</h4>

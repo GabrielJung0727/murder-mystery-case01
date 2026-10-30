@@ -251,6 +251,46 @@
       "src": "audio/voice/NAR-T02.ogg",
       "duration": 27.57,
       "source": "AFTERWORD.mp3"
+    },
+    "NAR-E-A-v1": {
+      "src": "audio/voice/NAR-E-A-v1.ogg",
+      "duration": 30.22,
+      "source": "NAR-E-A-v1.mp3"
+    },
+    "NAR-E-C-v1": {
+      "src": "audio/voice/NAR-E-C-v1.ogg",
+      "duration": 22.15,
+      "source": "NAR-E-C-v1.mp3"
+    },
+    "NAR-T-v1": {
+      "src": "audio/voice/NAR-T-v1.ogg",
+      "duration": 25.43,
+      "source": "NAR-T-v1.mp3"
+    },
+    "NAR-E-A-v2": {
+      "src": "audio/voice/NAR-E-A-v2.ogg",
+      "duration": 28.55,
+      "source": "NAR-E-A-v2.mp3"
+    },
+    "NAR-E-C-v2": {
+      "src": "audio/voice/NAR-E-C-v2.ogg",
+      "duration": 22.93,
+      "source": "NAR-E-C-v2.mp3"
+    },
+    "NAR-T-v2": {
+      "src": "audio/voice/NAR-T-v2.ogg",
+      "duration": 25.74,
+      "source": "NAR-T-v2.mp3"
+    },
+    "NAR-E-B-v1": {
+      "src": "audio/voice/NAR-E-B-v1.ogg",
+      "duration": 16.23,
+      "source": "NAR-E-B-v1.mp3"
+    },
+    "NAR-E-B-v2": {
+      "src": "audio/voice/NAR-E-B-v2.ogg",
+      "duration": 12.88,
+      "source": "NAR-E-B-v2.mp3"
     }
   },
   "blip": {}

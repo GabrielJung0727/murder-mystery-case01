@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { caseOf } from '../data/caseData';
+import { endingVoice } from './caseVoice';
 import type { GameState, SeatId } from '../engine/types';
 import type { CharId } from '../data/types';
 import { dialogue } from './dialogue';
@@ -69,8 +69,9 @@ export function useGameAudio(state: GameState, you: SeatId | null, ui: UiContext
       audio.setScene('silence');
       const t = setTimeout(() => {
         audio.setScene('ending', { variant: ending === 'A' ? 'truth' : 'false' });
-        // 엔딩 나레이션은 원작 본문으로 녹음됐다. 변형 사건은 공통 문구인 D 엔딩만 읽는다
-        if (ending && (caseOf(state).voiced || ending === 'D')) audio.narrate(`NAR-E-${ending}` as VoiceId, ENDING_VOICE_DELAY);
+        // 변형 사건은 그 변형의 녹음이 있을 때만 읽는다 (audio/caseVoice.ts)
+        const voice = ending ? endingVoice(state.variant, ending) : null;
+        if (voice) audio.narrate(voice, ENDING_VOICE_DELAY);
         audio.setAmbience(0.35, 0, 2);
         audio.setBaseTension(mix.tension);
         setTimeout(() => audio.rainFadeOut(45), 4000);

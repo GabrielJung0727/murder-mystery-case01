@@ -1,0 +1,16 @@
+# Render 블루프린트: 공작소의 밤 온라인 서버 (무료 플랜)
+# Render 대시보드 → New → Blueprint → 이 저장소를 고르면 아래대로 만들어진다.
+services:
+  - type: web
+    name: gongjakso-night
+    runtime: node
+    plan: free
+    region: singapore
+    # --ignore-scripts: Electron·ffmpeg 같은 게임 빌드용 바이너리를 내려받지 않는다 (서버에는 필요 없음)
+    buildCommand: npm ci --ignore-scripts && npm run build:cloud
+    startCommand: npm run start:cloud
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

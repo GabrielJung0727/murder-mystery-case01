@@ -106,7 +106,7 @@ function OnlineGame({ target, host, onExit }: { target: JoinTarget; host?: HostI
   if (state.phase === 'lobby') {
     return (
       <>
-        <Lobby session={session} host={host} onExit={onExit} />
+        <Lobby session={session} host={host} room={target.room} onExit={onExit} />
         <Atmosphere intensity={0.7} />
         <MenuSound />
       </>

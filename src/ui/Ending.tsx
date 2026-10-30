@@ -8,7 +8,7 @@ import type { GameState, Rank, SeatId } from '../engine/types';
 import { ART, shadedBg } from '../data/art';
 import { Atmosphere } from './Atmosphere';
 import { VoiceButton, VolumeControl } from './VolumeControl';
-import type { VoiceId } from '../audio/director';
+import { afterwordVoices, endingVoice, truthVoices } from '../audio/caseVoice';
 import { GameIcon, Polaroid, Stamp, seatName } from './bits';
 
 export const VERDICT = {
@@ -60,8 +60,8 @@ export function Ending({ state, you, onExit }: { state: GameState; you: SeatId |
             </div>
             <div className="story">
               {ending.text}
-              {(data.voiced || result.ending === 'D') && (
-                <div style={{ marginTop: 10 }}><VoiceButton ids={[`NAR-E-${result.ending}` as VoiceId]} label="엔딩 다시 듣기" /></div>
+              {endingVoice(state.variant, result.ending) && (
+                <div style={{ marginTop: 10 }}><VoiceButton ids={[endingVoice(state.variant, result.ending)!]} label="엔딩 다시 듣기" /></div>
               )}
             </div>
             <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
@@ -133,7 +133,7 @@ export function Ending({ state, you, onExit }: { state: GameState; you: SeatId |
             <h1>진상 · {data.variant.code} 「{data.variant.title}」</h1>
             <div className="story">
               {data.truthSummary}
-              {data.voiced && <div style={{ marginTop: 10 }}><VoiceButton ids={['NAR-T01', 'NAR-T02']} label="진상·후일담 듣기" /></div>}
+              {truthVoices(state.variant).length > 0 && <div style={{ marginTop: 10 }}><VoiceButton ids={truthVoices(state.variant)} label="진상·후일담 듣기" /></div>}
             </div>
             <h3>실제 시간표</h3>
             <div className="paper">
@@ -168,7 +168,7 @@ export function Ending({ state, you, onExit }: { state: GameState; you: SeatId |
             </div>
             <div className="story">
               {data.afterword}
-              {data.voiced && <div style={{ marginTop: 10 }}><VoiceButton ids={['NAR-T02']} label="후일담 듣기" /></div>}
+              {afterwordVoices(state.variant).length > 0 && <div style={{ marginTop: 10 }}><VoiceButton ids={afterwordVoices(state.variant)} label="후일담 듣기" /></div>}
             </div>
           </>
         )}

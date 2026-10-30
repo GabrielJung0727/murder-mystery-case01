@@ -64,9 +64,12 @@ describe('audio manifest', () => {
 });
 
 describe('narration', () => {
-  it('has all 20 script IDs from docs/나레이션_대본.md', () => {
+  it('has all 20 script IDs from docs/나레이션_대본.md, plus only variant recordings', () => {
     const ids = ['B01', 'B02', 'B03', 'B04', 'B05', 'P01', 'R1', 'R2', 'R3', 'D1', 'D2', 'D3', 'F01', 'S01', 'E-A', 'E-B', 'E-C', 'E-D', 'T01', 'T02'].map((x) => `NAR-${x}`);
-    expect(Object.keys(manifest.voice).sort()).toEqual(ids.sort());
+    const keys = Object.keys(manifest.voice);
+    expect(keys).toEqual(expect.arrayContaining(ids));
+    // 그 밖의 녹음은 변형 사건용뿐이다 (docs/나레이션_변형_대본.md)
+    expect(keys.filter((k) => !ids.includes(k)).every((k) => /^NAR-(E-[ABC]|T2?)-v\d$/.test(k))).toBe(true);
   });
 
   it('reads the right line for each phase and skips discussion openings online', async () => {

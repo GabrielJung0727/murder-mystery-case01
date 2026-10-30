@@ -2,6 +2,7 @@
 원본 OST·효과음을 게임용 에셋으로 가공한다.
 
   python scripts/prepare_audio.py <원본 폴더>
+  python scripts/prepare_audio.py --voice <새 나레이션 폴더>   (나레이션만 추가)
 
 - 음악(Suno mp3): 커버 이미지를 떼고 오디오만 복사. 앞뒤 무음을 재서 루프 구간을 manifest에 기록.
 - RAIN-01: 앞 무음을 잘라내고 3초 크로스페이드로 이음새 없는 루프 생성.
@@ -200,6 +201,10 @@ VOICE = [
     ('NAR-F01', 'advance'), ('NAR-S01', 'npcReact_solved'),
     ('NAR-E-A', 'ENDINGS[E-A]'), ('NAR-E-B', 'ENDINGS[E-B]'), ('NAR-E-C', 'ENDINGS[E-C]'), ('NAR-E-D', 'ENDINGS[E-D]'),
     ('NAR-T01', 'TRUTH_SUMMARY'), ('NAR-T02', 'AFTERWORD'),
+    # 변형 사건 (docs/나레이션_변형_대본.md). 파일 이름이 ID 로 시작하면 된다: NAR-E-A-v1.mp3
+    ('NAR-E-A-v1', 'NAR-E-A-v1'), ('NAR-E-C-v1', 'NAR-E-C-v1'), ('NAR-T-v1', 'NAR-T-v1'),
+    ('NAR-E-A-v2', 'NAR-E-A-v2'), ('NAR-E-C-v2', 'NAR-E-C-v2'), ('NAR-T-v2', 'NAR-T-v2'),
+    ('NAR-E-B-v1', 'NAR-E-B-v1'), ('NAR-E-B-v2', 'NAR-E-B-v2'), ('NAR-T2-v1', 'NAR-T2-v1'), ('NAR-T2-v2', 'NAR-T2-v2'),
 ]
 
 
@@ -251,6 +256,16 @@ def make_blips(src):
 def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
+    if sys.argv[1] == '--voice':
+        # 나레이션만 추가: python scripts/prepare_audio.py --voice <새 녹음 폴더>
+        # 폴더에 있는 녹음만 변환해 기존 manifest 에 덧붙인다 (음악·효과음 원본이 없어도 된다)
+        path = os.path.join(ROOT, 'src', 'audio', 'manifest.json')
+        with open(path, encoding='utf-8') as f:
+            manifest = json.load(f)
+        manifest['voice'].update(make_voice(sys.argv[2]))
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, ensure_ascii=False, indent=2)
+        return
     src = sys.argv[1]
     manifest = {'music': make_music(src), 'rain': make_rain(src), 'clock': make_clock(src), 'sfx': {}, 'voice': make_voice(src), 'blip': make_blips(src)}
     for key in ONESHOTS:

@@ -7,6 +7,8 @@ import type { Scene } from './rules';
 type TrackId = keyof typeof manifest.music;
 type SfxKind = keyof typeof manifest.sfx;
 export type VoiceId = keyof typeof manifest.voice;
+/** 녹음 파일이 실제로 들어 있는 나레이션인가 (변형 사건 녹음은 나중에 추가된다) */
+export const hasVoice = (id: string): id is VoiceId => id in manifest.voice;
 
 const VOICE_GAP = 0.6; // 연속 나레이션 사이 간격 (초)
 const VOICE_DUCK_MUSIC = 0.35; // 나레이션 중 음악 음량 배율

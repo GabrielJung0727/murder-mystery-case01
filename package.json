@@ -16,7 +16,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "licenses": "node scripts/gen_licenses.mjs",
-    "e2e:online": "esbuild scripts/online_e2e.ts --bundle --platform=node --format=cjs --outfile=dist-server/online_e2e.cjs --log-level=warning && node dist-server/online_e2e.cjs"
+    "e2e:online": "esbuild scripts/online_e2e.ts --bundle --platform=node --format=cjs --outfile=dist-server/online_e2e.cjs --log-level=warning && node dist-server/online_e2e.cjs",
+    "build:cloud": "esbuild scripts/cloud_server.ts --bundle --platform=node --format=cjs --outfile=dist-server/cloud.cjs",
+    "start:cloud": "node dist-server/cloud.cjs"
   },
   "dependencies": {
     "@fontsource/nanum-gothic-coding": "5.3.0",
