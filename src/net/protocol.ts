@@ -7,6 +7,7 @@ export type ClientMsg =
   | { t: 'hello'; playerId: string; name: string; hostToken?: string }
   | { t: 'seat'; char: CharId }
   | { t: 'leave' }
+  | { t: 'rejoin'; seat: SeatId }
   | { t: 'timers'; timers: Timers }
   | { t: 'action'; action: Action };
 

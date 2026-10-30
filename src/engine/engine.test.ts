@@ -3,7 +3,7 @@ import { CARDS, CARD_BY_ID } from '../data/cards';
 import { CHAR_IDS } from '../data/characters';
 import { NPC_SCRIPTS } from '../data/npcScripts';
 import type { CardId, CharId } from '../data/types';
-import { applyAction, canSee, claimSeat, createOnlineGame, createSingleGame, viewFor } from './engine';
+import { applyAction, canSee, claimSeat, createOnlineGame, createSingleGame, reclaimSeat, releaseSeat, viewFor } from './engine';
 import { decideEnding } from './scoring';
 import type { GameState, Report, SeatId } from './types';
 
@@ -130,6 +130,24 @@ describe('online flow', () => {
     s = applyAction(s, { type: 'submit', seat: 'seonbin', report: { ...CORRECT, culprit: 'jaegu' } });
     expect(s.phase).toBe('ending');
     expect(s.result?.ending).toBe('D');
+  });
+
+  it('lets a dropped player take back their seat mid-game, but never a live one', () => {
+    let s = createOnlineGame({ prologue: 0, investigate: 0, discuss: 0, final: 0 }, 5);
+    s = claimSeat(s, 'p1', 'A', 'seonbin');
+    s = claimSeat(s, 'p2', 'B', 'arin');
+    expect(reclaimSeat(s, 'p9', 'A', 'seonbin')).toBe(s); // 로비에서는 불가
+    s = applyAction(s, { type: 'advance' });
+    s = applyAction(s, { type: 'advance' });
+    s = applyAction(s, { type: 'draw', seat: 'seonbin', card: '04' });
+    expect(reclaimSeat(s, 'p9', 'A', 'seonbin')).toBe(s); // 주인이 접속 중
+    s = releaseSeat(s, 'p1'); // 진행 중에는 자리를 비우지 않고 '끊김'으로 둔다
+    expect(reclaimSeat(s, 'p2', 'B', 'seonbin')).toBe(s); // 이미 다른 자리에 앉은 사람
+    s = reclaimSeat(s, 'p9', 'A', 'seonbin');
+    const seat = s.seats.find((x) => x.id === 'seonbin')!;
+    expect(seat.playerId).toBe('p9');
+    expect(seat.connected).toBe(true);
+    expect(canSee(s, 'seonbin', '04')).toBe(true); // 손패도 그대로
   });
 
   it('auto-advances when the phase timer expires', () => {

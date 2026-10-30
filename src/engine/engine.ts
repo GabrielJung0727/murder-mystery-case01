@@ -253,6 +253,20 @@ export function releaseSeat(prev: GameState, playerId: string): GameState {
   return state;
 }
 
+/**
+ * 진행 중인 판에서 연결이 끊긴 사람 자리를 이어받는다 (앱을 다시 켰거나 다른 PC로 옮긴 경우).
+ * 이미 다른 자리에 앉아 있거나, 자리 주인이 아직 접속 중이면 거절한다.
+ */
+export function reclaimSeat(prev: GameState, playerId: string, name: string, seatId: SeatId): GameState {
+  if (prev.phase === 'lobby' || prev.phase === 'ending') return prev;
+  if (prev.seats.some((s) => s.playerId === playerId)) return prev;
+  const target = seatOf(prev, seatId);
+  if (!target || target.kind !== 'human' || target.connected !== false) return prev;
+  const state = structuredClone(prev);
+  Object.assign(seatOf(state, seatId)!, { playerId, name, connected: true });
+  return state;
+}
+
 export function setConnected(prev: GameState, playerId: string, connected: boolean): GameState {
   const state = structuredClone(prev);
   for (const s of state.seats) if (s.playerId === playerId) s.connected = connected;

@@ -1,0 +1,56 @@
+[
+  {
+    "name": "@fontsource/nanum-gothic-coding",
+    "version": "5.3.0",
+    "license": "OFL-1.1",
+    "note": "글꼴 나눔고딕코딩 (NAVER)"
+  },
+  {
+    "name": "@fontsource/nanum-myeongjo",
+    "version": "5.3.0",
+    "license": "OFL-1.1",
+    "note": "글꼴 나눔명조 (NAVER)"
+  },
+  {
+    "name": "@fontsource/nanum-pen-script",
+    "version": "5.3.0",
+    "license": "OFL-1.1",
+    "note": "글꼴 나눔손글씨 펜 (NAVER)"
+  },
+  {
+    "name": "@fontsource/special-elite",
+    "version": "5.3.0",
+    "license": "Apache-2.0",
+    "note": "글꼴 Special Elite (Astigmatic)"
+  },
+  {
+    "name": "electron",
+    "version": "33.2.1",
+    "license": "MIT",
+    "note": "실행 환경. Chromium 등 내장 구성 요소의 고지는 배포 폴더의 LICENSES.chromium.html 에 있습니다."
+  },
+  {
+    "name": "lucide-react",
+    "version": "0.460.0",
+    "license": "ISC",
+    "note": ""
+  },
+  {
+    "name": "react",
+    "version": "18.3.1",
+    "license": "MIT",
+    "note": ""
+  },
+  {
+    "name": "react-dom",
+    "version": "18.3.1",
+    "license": "MIT",
+    "note": ""
+  },
+  {
+    "name": "ws",
+    "version": "8.18.0",
+    "license": "MIT",
+    "note": ""
+  }
+]

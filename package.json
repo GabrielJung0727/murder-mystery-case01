@@ -11,10 +11,11 @@
     "server": "esbuild scripts/server.ts --bundle --platform=node --format=cjs --outfile=dist-server/server.cjs && node dist-server/server.cjs",
     "blip-script": "esbuild scripts/gen_blip_script.ts --bundle --platform=node --format=esm --outfile=dist-server/gen_blip.mjs && node dist-server/gen_blip.mjs",
     "build:main": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --format=cjs --outdir=dist-electron --external:electron",
-    "build": "tsc --noEmit && vite build && npm run build:main",
+    "build": "npm run licenses && tsc --noEmit && vite build && npm run build:main",
     "dist": "npm run build && electron-builder --win portable",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "licenses": "node scripts/gen_licenses.mjs"
   },
   "dependencies": {
     "@fontsource/nanum-gothic-coding": "5.3.0",

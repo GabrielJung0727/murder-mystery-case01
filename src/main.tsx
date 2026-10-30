@@ -16,7 +16,8 @@ import './ui/casefolder.css';
 // 자동재생 정책: 첫 입력에서 오디오 컨텍스트를 깨운다 (Electron은 정책을 꺼 두어 바로 재생)
 for (const ev of ['pointerdown', 'keydown'] as const) window.addEventListener(ev, () => audio.unlock(), { once: true });
 display.restore();
-(window as unknown as { __gongjaksoAudio: typeof audio }).__gongjaksoAudio = audio;
+// 개발 모드에서만 콘솔에서 오디오 상태를 볼 수 있게 노출한다 (__gongjaksoAudio.debug())
+if (import.meta.env.DEV) (window as unknown as { __gongjaksoAudio: typeof audio }).__gongjaksoAudio = audio;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

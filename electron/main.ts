@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import { randomBytes } from 'node:crypto';
 import { networkInterfaces } from 'node:os';
 import path from 'node:path';
@@ -66,7 +66,11 @@ ipcMain.handle('app:quit', async () => {
   app.quit();
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // 배포판: 기본 메뉴(새로고침·개발자 도구 단축키 포함)를 없앤다. 새로고침하면 진행 중인 판이 끊긴다.
+  if (app.isPackaged) Menu.setApplicationMenu(null);
+  createWindow();
+});
 app.on('window-all-closed', async () => {
   await server?.close();
   app.quit();

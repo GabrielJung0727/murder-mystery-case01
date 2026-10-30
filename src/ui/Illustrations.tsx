@@ -15,12 +15,14 @@ export const SCENES: Record<string, Scene> = {
   '34': { src: 'clues/inspect-34.webp', w: 1600, h: 621, hotspot: { x: 1300, y: 175, r: 90 } },
 };
 
-const PHOTOS: Record<'docs' | 'yard' | 'reflection', string> = {
-  docs: 'clues/photo-19.webp',
-  yard: 'clues/photo-33.webp',
-  reflection: 'clues/inspect-34.webp',
+/** 휴대폰 미리보기는 가로로 잘리므로, 사진마다 보여 줄 부분(object-position)을 정한다 */
+const PHOTOS: Record<'docs' | 'yard' | 'reflection', { src: string; focus: string }> = {
+  docs: { src: 'clues/photo-19.webp', focus: '50% 45%' },
+  yard: { src: 'clues/photo-33.webp', focus: '50% 60%' },
+  reflection: { src: 'clues/inspect-34.webp', focus: '78% 40%' }, // 유리 반사 속 소매가 보이도록
 };
 
 export function GalleryThumb({ scene }: { scene: 'docs' | 'yard' | 'reflection' }) {
-  return <img className="gallery-photo" src={PHOTOS[scene]} alt="" draggable={false} />;
+  const p = PHOTOS[scene];
+  return <img className="gallery-photo" src={p.src} alt="" draggable={false} style={{ objectPosition: p.focus }} />;
 }

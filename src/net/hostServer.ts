@@ -1,5 +1,5 @@
 import { WebSocketServer, type WebSocket } from 'ws';
-import { applyAction, claimSeat, createOnlineGame, releaseSeat, setConnected, viewFor } from '../engine/engine';
+import { applyAction, claimSeat, createOnlineGame, reclaimSeat, releaseSeat, setConnected, viewFor } from '../engine/engine';
 import type { GameState, SeatId } from '../engine/types';
 import type { ClientMsg, ServerMsg } from './protocol';
 
@@ -58,6 +58,11 @@ export function startHostServer(port: number, hostToken: string): Promise<HostSe
       case 'seat':
         if (!update(claimSeat(state, client.playerId, client.name, msg.char))) {
           send(ws, { t: 'error', message: '선택할 수 없는 인물입니다.' });
+        }
+        return;
+      case 'rejoin':
+        if (!update(reclaimSeat(state, client.playerId, client.name, msg.seat))) {
+          send(ws, { t: 'error', message: '이어받을 수 없는 자리입니다.' });
         }
         return;
       case 'leave':
