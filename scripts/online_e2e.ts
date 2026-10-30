@@ -1,5 +1,6 @@
 // 온라인 5인 한 판 전체를 실제 호스트 서버로 돌려 보는 통합 테스트: npm run e2e:online
-// 착석 → 3라운드 조사·공개·제시 → 진행 중 끊김과 재접속 → 최종 보고서 → 엔딩 A 까지 확인한다.
+// 착석 → 3라운드 조사·공개·제시 → 진행 중 끊김과 재접속 → 최종 보고서 → 엔딩 A 까지 확인하고,
+// 두 번째 판은 호스트가 고른 변형 사건·어려움 모드로 진범 지목과 진범용 개인 목표 채점을 확인한다.
 import WebSocket from 'ws';
 import { CARDS } from '../src/data/cards';
 import { startHostServer } from '../src/net/hostServer';
@@ -69,6 +70,31 @@ const check = (ok: boolean, label: string) => { console.log(ok ? 'PASS' : 'FAIL'
   check(Object.keys(cs[4].last.state.reports).length === 5, '엔딩에서 전원 보고서 공개');
   cs.forEach((c) => c.ws.close());
   await srv.close();
+
+  // 2판: 호스트가 대기실에서 '변형 사건 · 어려움'을 고른다
+  const srv2 = await startHostServer(4798, 'tok');
+  const ds: C[] = [];
+  for (let i = 0; i < 5; i++) ds.push(await client('q' + i, '참가자' + i, i === 0 ? 'tok' : undefined));
+  ds.forEach((c, i) => send(c, { t: 'seat', char: CHARS[i] }));
+  send(ds[3], { t: 'options', options: { variantMode: 'variant', difficulty: 'hard' } }); await wait(150);
+  check(ds[0].last.state.options.variantMode === 'original', '호스트가 아니면 사건 선택을 못 바꾼다');
+  send(ds[0], { t: 'options', options: { variantMode: 'variant', difficulty: 'hard' } }); await wait(150);
+  check(ds[2].last.state.options.variantMode === 'variant' && ds[2].last.state.options.difficulty === 'hard', '모두에게 변형·어려움 설정이 보인다');
+  act(ds[0], { type: 'advance' }); await wait(150);
+  const variant = ds[0].last.state.variant;
+  check(variant === 'v1' || variant === 'v2', `시작할 때 변형 사건이 정해짐 (${variant})`);
+  const culprit = variant === 'v1' ? 'seongcheol' : 'jaegu';
+  for (let i = 0; i < 7; i++) { act(ds[0], { type: 'advance' }); await wait(80); }
+  check(ds[0].last.state.phase === 'final', '변형 판 최종 추리 단계');
+  for (const c of ds) { act(c, { type: 'submit', report: { culprit, motive: null, time: null, method: null, evidence: [] } }); await wait(60); }
+  await wait(200);
+  const res = ds[0].last.state.result;
+  check(res?.ending === 'A', `변형 진범(${culprit}) 지목 → 엔딩 A`);
+  const culpritGoals = res?.goals[culprit]?.map((g: { id: string }) => g.id).join(',');
+  check(culpritGoals === 'escape,scapegoat,bury', '진범 역할 좌석은 진범용 개인 목표로 채점');
+  check(Object.keys(res?.ranks ?? {}).length === 5, '5명 모두 랭크를 받는다');
+  ds.forEach((c) => c.ws.close());
+  await srv2.close();
   console.log(fails ? `${fails}개 실패` : '전부 통과');
   process.exit(fails ? 1 : 0);
 })();

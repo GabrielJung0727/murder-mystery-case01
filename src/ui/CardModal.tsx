@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { CARD_BY_ID } from '../data/cards';
+import { caseOf } from '../data/caseData';
 import { EVIDENCE_PHOTO, ZONE_ART } from '../data/art';
 import { josa } from '../data/josa';
 import type { CardId } from '../data/types';
@@ -51,7 +52,7 @@ export function CardModal({ card, state, you, dispatch, onPresent, onClose }: {
   card: CardId; state: GameState; you: SeatId | null; dispatch: (a: Action) => void;
   onPresent: (c: CardId) => void; onClose: () => void;
 }) {
-  const c = CARD_BY_ID[card];
+  const c = caseOf(state).card(card);
   const cs = state.cards[card];
   const visible = you ? canSee(state, you, card) : cs.public;
   const mine = cs.owner === you && !!you;

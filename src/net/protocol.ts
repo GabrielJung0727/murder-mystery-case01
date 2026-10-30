@@ -1,5 +1,5 @@
 import type { CharId } from '../data/types';
-import type { Action, GameState, SeatId, Timers } from '../engine/types';
+import type { Action, GameOptions, GameState, SeatId, Timers } from '../engine/types';
 
 export const DEFAULT_PORT = 4777;
 
@@ -9,6 +9,7 @@ export type ClientMsg =
   | { t: 'leave' }
   | { t: 'rejoin'; seat: SeatId }
   | { t: 'timers'; timers: Timers }
+  | { t: 'options'; options: GameOptions }
   | { t: 'action'; action: Action };
 
 export type ServerMsg =

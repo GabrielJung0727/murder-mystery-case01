@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CARD_BY_ID } from '../data/cards';
+import { caseOf } from '../data/caseData';
 import type { GameState } from '../engine/types';
 import { seatName } from './bits';
 
@@ -26,7 +27,7 @@ export function Spotlight({ state }: { state: GameState }) {
             <div key={c} className="card-sheet" style={{ width: 340 }}>
               <div className="meta">증거 {c} / {CARD_BY_ID[c].location}</div>
               <h3>{CARD_BY_ID[c].title}</h3>
-              <p style={{ fontSize: 13 }}>{CARD_BY_ID[c].text}</p>
+              <p style={{ fontSize: 13 }}>{caseOf(state).card(c).text}</p>
             </div>
           ))}
         </div>

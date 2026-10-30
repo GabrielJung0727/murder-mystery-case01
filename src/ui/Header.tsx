@@ -52,6 +52,7 @@ export function Header(props: GameProps & { onDossier: () => void; onReport: () 
         <span className={state.phase === 'final' ? 'on' : ''}>FINAL</span>
       </div>
       <span className="live-badge"><i />{state.round > 0 ? `ROUND ${state.round} · ` : ''}{PHASE_LABEL[state.phase]}</span>
+      {state.options.difficulty === 'hard' && <span className="tag red" title="단서 힌트 없음 · 심문마다 증거 제시 5회 · 타임라인 판정 비공개">어려움</span>}
       {left !== null && (
         <span className="clock">
           <Clock size={15} />

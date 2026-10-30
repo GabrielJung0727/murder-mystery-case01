@@ -3,7 +3,7 @@ import { bridge, hasClearedSingle, markSingleCleared, type HostInfo } from '../c
 import { loadSingle, saveSingle } from '../client/saveGame';
 import { useOnline, type OnlineSession } from '../client/useOnline';
 import { applyAction, createSingleGame } from '../engine/engine';
-import type { Action, GameState, SeatId } from '../engine/types';
+import type { Action, GameOptions, GameState, SeatId } from '../engine/types';
 import { DEFAULT_PORT } from '../net/protocol';
 import { ART, shadedBg } from '../data/art';
 import { Atmosphere } from './Atmosphere';
@@ -18,7 +18,7 @@ import { Title } from './Title';
 type Screen =
   | { kind: 'title' }
   | { kind: 'single-setup' }
-  | { kind: 'single'; player: SeatId; resume?: GameState }
+  | { kind: 'single'; player: SeatId; options?: GameOptions; resume?: GameState }
   | { kind: 'online-setup' }
   | { kind: 'online'; target: JoinTarget; host?: HostInfo };
 
@@ -42,7 +42,7 @@ export function App() {
             cleared={hasClearedSingle()}
             save={loadSingle()}
             onBack={toTitle}
-            onStart={(player) => setScreen({ kind: 'single', player })}
+            onStart={(player, options) => setScreen({ kind: 'single', player, options })}
             onResume={(save) => setScreen({ kind: 'single', player: save.player, resume: save.state })}
           />
           <Atmosphere intensity={0.7} />
@@ -50,7 +50,7 @@ export function App() {
         </>
       );
     case 'single':
-      return <SingleGame player={screen.player} resume={screen.resume} onExit={toTitle} />;
+      return <SingleGame player={screen.player} options={screen.options} resume={screen.resume} onExit={toTitle} />;
     case 'online-setup':
       return (
         <>
@@ -77,8 +77,8 @@ export function App() {
   }
 }
 
-function SingleGame({ player, resume, onExit }: { player: SeatId; resume?: GameState; onExit: () => void }) {
-  const [state, setState] = useState<GameState>(() => resume ?? createSingleGame(player));
+function SingleGame({ player, options, resume, onExit }: { player: SeatId; options?: GameOptions; resume?: GameState; onExit: () => void }) {
+  const [state, setState] = useState<GameState>(() => resume ?? createSingleGame(player, Date.now(), options));
   const dispatch = useCallback((action: Action) => setState((s) => applyAction(s, action)), []);
   useEffect(() => {
     if (state.phase === 'ending') markSingleCleared();

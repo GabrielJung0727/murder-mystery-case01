@@ -21,6 +21,14 @@ export function parseSave(raw: string | null): SingleSave | null {
     const { state } = save;
     if (state.mode !== 'single' || state.phase === 'ending' || !Array.isArray(state.seats) || !state.cards || !Array.isArray(state.log)) return null;
     if (!state.seats.some((s) => s.id === save.player && s.kind === 'human')) return null;
+    // v2.1 이전 저장: 진범 변형·난이도가 없던 시절 → 원작·보통으로 이어 간다
+    save.state = {
+      ...state,
+      variant: state.variant ?? 'v0',
+      options: state.options ?? { variantMode: 'original', difficulty: 'normal' },
+      stats: state.stats ?? { presents: 0, misses: 0 },
+      presentsLeft: state.presentsLeft ?? null,
+    };
     return save as SingleSave;
   } catch {
     return null;

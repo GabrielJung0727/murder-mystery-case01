@@ -1,5 +1,5 @@
 import { WebSocketServer, type WebSocket } from 'ws';
-import { applyAction, claimSeat, createOnlineGame, reclaimSeat, releaseSeat, setConnected, viewFor } from '../engine/engine';
+import { applyAction, claimSeat, createOnlineGame, reclaimSeat, releaseSeat, setConnected, setOptions, viewFor } from '../engine/engine';
 import type { GameState, SeatId } from '../engine/types';
 import type { ClientMsg, ServerMsg } from './protocol';
 
@@ -70,6 +70,9 @@ export function startHostServer(port: number, hostToken: string): Promise<HostSe
         return;
       case 'timers':
         if (client.isHost && state.phase === 'lobby') update({ ...state, timers: msg.timers });
+        return;
+      case 'options':
+        if (client.isHost) update(setOptions(state, msg.options));
         return;
       case 'action': {
         const action = msg.action;

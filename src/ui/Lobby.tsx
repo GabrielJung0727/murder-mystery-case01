@@ -4,6 +4,7 @@ import { CHARACTERS } from '../data/characters';
 import { ART, shadedBg } from '../data/art';
 import type { Timers } from '../engine/types';
 import { Desk, Folder, Polaroid, Stamp } from './bits';
+import { OptionsPicker } from './OptionsPicker';
 
 const TIMER_FIELDS: { key: keyof Timers; label: string }[] = [
   { key: 'prologue', label: '역할 숙지' },
@@ -65,6 +66,12 @@ export function Lobby({ session, host, onExit }: { session: OnlineSession; host?
             );
           })}
         </div>
+        <OptionsPicker
+          value={state.options}
+          disabled={!session.isHost}
+          onChange={session.isHost ? (options) => session.send({ t: 'options', options }) : undefined}
+        />
+        {!session.isHost && <p className="muted" style={{ fontSize: 12, marginTop: -8 }}>사건 선택과 난이도는 호스트가 정합니다. 변형 사건이면 누가 진범 역할을 받을지는 시작할 때 정해집니다.</p>}
         {session.isHost ? (
           <div className="col">
             <div className="row" style={{ flexWrap: 'wrap', gap: 18 }}>

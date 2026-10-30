@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CARD_BY_ID, CARDS } from '../data/cards';
 import { ART, shadedBg } from '../data/art';
-import { CHAR_BY_ID, DEFENSE } from '../data/characters';
-import { NPC_SCRIPTS } from '../data/npcScripts';
+import { caseOf } from '../data/caseData';
+import { CHAR_BY_ID } from '../data/characters';
 import type { CardId, CharId } from '../data/types';
 import { canSee } from '../engine/engine';
 import type { Action, GameState, SeatId } from '../engine/types';
@@ -32,7 +32,7 @@ function DefenseBar({ state, you }: { state: GameState; you: SeatId }) {
   return (
     <div className="defense">
       <span className="lbl">내 비밀 방어 · {CHAR_BY_ID[you].name}</span>
-      {DEFENSE[you].map((d) => {
+      {caseOf(state).defense[you].map((d) => {
         const exposed = d.cards.some((c) => state.cards[c].public);
         const holding = d.cards.filter((c) => state.cards[c].owner === you && !state.cards[c].public);
         return (
@@ -55,9 +55,10 @@ export function Interrogation({ state, you, dispatch, initial, onOpenCard, onClo
   const logRef = useRef<HTMLDivElement>(null);
   const npcs = state.seats.filter((s) => s.kind === 'npc').map((s) => s.id as CharId);
   const mind = state.npc[target]!;
-  const script = NPC_SCRIPTS[target];
+  const script = caseOf(state).scripts[target];
   const visible = CARDS.filter((c) => canSee(state, you, c.id)).map((c) => c.id);
-  const canPresent = state.phase === 'discuss' || state.phase === 'final';
+  const left = state.presentsLeft;
+  const canPresent = (state.phase === 'discuss' || state.phase === 'final') && left !== 0;
 
   const dialog = state.log.filter((e) =>
     (e.kind === 'present' && e.target === target) || (e.kind === 'hint' && e.target === target)
@@ -76,6 +77,7 @@ export function Interrogation({ state, you, dispatch, initial, onOpenCard, onClo
       <div className="modal-head">
         <h2>심문실</h2>
         <span className="muted">증거를 최대 3장까지 함께 제시할 수 있습니다.</span>
+        {left !== null && <span className={`tag ${left <= 1 ? 'red' : 'amber'}`}>어려움 · 남은 제시 {left}회</span>}
         <span className="grow" />
         <button className="btn sm ghost" onClick={onClose}>닫기 <GameIcon name="close" /></button>
       </div>
@@ -128,7 +130,7 @@ export function Interrogation({ state, you, dispatch, initial, onOpenCard, onClo
               ))}
             </div>
             <div className="row" style={{ justifyContent: 'flex-end' }}>
-              {!canPresent && <span className="muted" style={{ fontSize: 12 }}>조사 단계가 끝나면 증거를 제시할 수 있습니다.</span>}
+              {!canPresent && <span className="muted" style={{ fontSize: 12 }}>{left === 0 ? '이번 심문에서 제시할 수 있는 횟수를 다 썼습니다. 다음 라운드를 기다리세요.' : '조사 단계가 끝나면 증거를 제시할 수 있습니다.'}</span>}
               <button
                 className="btn danger"
                 disabled={!canPresent || picked.length === 0}

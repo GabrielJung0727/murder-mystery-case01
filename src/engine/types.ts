@@ -1,10 +1,20 @@
 import type { CardId, CharId } from '../data/types';
 import type { NpcState } from '../data/npcScripts';
 import type { EndingId } from '../data/story';
+import type { VariantId } from '../data/variants';
 
 export type SeatId = CharId | 'detective';
 export type Mode = 'online' | 'single';
 export type Phase = 'lobby' | 'prologue' | 'investigate' | 'discuss' | 'final' | 'ending';
+export type Difficulty = 'normal' | 'hard';
+/** 사건 선택: 원작 / 변형 중 무작위 / 원작 포함 무작위 */
+export type VariantMode = 'original' | 'variant' | 'any';
+export type Rank = 'S' | 'A' | 'B' | 'C' | 'D';
+
+export interface GameOptions {
+  variantMode: VariantMode;
+  difficulty: Difficulty;
+}
 
 export interface CardState {
   owner: SeatId | null;
@@ -59,12 +69,21 @@ export interface ScoreBreakdown {
   total: number;
 }
 
+export interface GoalResult {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
 export interface Result {
   votes: Partial<Record<SeatId, CharId | null>>;
   tally: Record<CharId, number>;
   top: CharId[];
   ending: EndingId;
+  /** bonus = 달성한 개인 목표 수 */
   scores: Partial<Record<SeatId, ScoreBreakdown>>;
+  goals: Partial<Record<SeatId, GoalResult[]>>;
+  ranks: Partial<Record<SeatId, Rank>>;
 }
 
 export interface Contradiction {
@@ -108,6 +127,13 @@ export interface GameState {
   /** 페이즈별 제한 시간 (분). 0 이면 무제한 */
   timers: Timers;
   spotlight: Spotlight | null;
+  /** 이 판의 진범 변형 (data/variants.ts). 온라인은 로비를 떠날 때 정해진다 */
+  variant: VariantId;
+  options: GameOptions;
+  /** 싱글: 증거 제시 횟수와 헛짚은(반응 없는) 제시 횟수 */
+  stats: { presents: number; misses: number };
+  /** 어려움 모드 싱글: 이번 심문 단계에 남은 증거 제시 횟수 (그 외에는 null = 무제한) */
+  presentsLeft: number | null;
 }
 
 export type Action =

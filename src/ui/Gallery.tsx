@@ -1,5 +1,8 @@
 import { Lock } from 'lucide-react';
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { getCase } from '../data/caseData';
+import { VARIANT_IDS, type VariantId } from '../data/variants';
 import { audio, type VoiceId } from '../audio/director';
 import { VoiceButton } from './VolumeControl';
 import { progress } from '../client/progress';
@@ -55,7 +58,7 @@ function CardDetail({ id, notes, onBack }: { id: CardId; notes: boolean; onBack:
 
 export function Gallery({ onClose }: { onClose: () => void }) {
   const p = useSyncExternalStore(progress.subscribe, progress.get);
-  const [tab, setTab] = useState<'cards' | 'endings' | 'truth'>('cards');
+  const [tab, setTab] = useState<'cards' | 'endings' | 'truth' | 'records'>('cards');
   const [card, setCard] = useState<CardId | null>(null);
   const [ending, setEnding] = useState<EndingId | null>(null);
   const opened = p.endings.length > 0;
@@ -69,10 +72,15 @@ export function Gallery({ onClose }: { onClose: () => void }) {
           <button className={tab === 'cards' ? 'on' : ''} onClick={() => { setTab('cards'); setCard(null); }}>증거 카드 {p.cards.length}/35</button>
           <button className={tab === 'endings' ? 'on' : ''} onClick={() => { setTab('endings'); setEnding(null); }}>엔딩 {p.endings.length}/4</button>
           <button className={tab === 'truth' ? 'on' : ''} onClick={() => setTab('truth')}>사건의 진상</button>
+          <button className={tab === 'records' ? 'on' : ''} onClick={() => setTab('records')}>
+            기록·도전 과제 {Object.keys(p.achievements).length}/{ACHIEVEMENTS.length}
+          </button>
         </div>
         <span className="grow" />
         <button className="btn sm ghost" onClick={onClose}>닫기 <GameIcon name="close" /></button>
       </div>
+
+      {tab === 'records' && <Records p={p} />}
 
       {tab === 'cards' && (card
         ? <CardDetail id={card} notes={opened} onBack={() => setCard(null)} />
@@ -159,5 +167,53 @@ export function Gallery({ onClose }: { onClose: () => void }) {
         </div>
       ))}
     </Modal>
+  );
+}
+
+/** 사건 기록(진범 변형)별 해결 여부·최고 랭크와 도전 과제 */
+function Records({ p }: { p: ReturnType<typeof progress.get> }) {
+  const [open, setOpen] = useState<VariantId | null>(null);
+  return (
+    <div className="col" style={{ gap: 18 }}>
+      <section>
+        <div className="kicker-type" style={{ marginBottom: 10 }}>사건 기록 · {p.solvedCases.length}/{VARIANT_IDS.length} 해결</div>
+        <div className="folder-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {VARIANT_IDS.map((v, i) => {
+            const data = getCase(v);
+            const solved = p.solvedCases.includes(v);
+            return (
+              <Folder key={v} tab={data.variant.code} title={solved ? `「${data.variant.title}」` : '「 ??? 」'} tilt={i % 2 ? 1 : -1}
+                compact selected={open === v} stamp={solved ? `해결 · ${p.best[v] ?? '-'}` : undefined} onClick={() => solved && setOpen(open === v ? null : v)}>
+                <p className="fine" style={{ fontSize: 12 }}>
+                  {solved ? '진범을 밝혀낸 사건. 눌러서 진상을 다시 봅니다.' : v === 'v0' ? '원작 사건. 진범을 지목하면 열립니다.' : '변형 사건. 진범을 지목하면 부제와 진상이 열립니다.'}
+                </p>
+                {!solved && p.best[v] && <span className="no">최고 랭크 {p.best[v]}</span>}
+              </Folder>
+            );
+          })}
+        </div>
+        {open && (
+          <div className="paper" style={{ marginTop: 14 }}>
+            <h4>{getCase(open).variant.code} 「{getCase(open).variant.title}」 · 진상</h4>
+            <p style={{ fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.9 }}>{getCase(open).truthSummary}</p>
+          </div>
+        )}
+      </section>
+      <section>
+        <div className="kicker-type" style={{ marginBottom: 10 }}>도전 과제 · {Object.keys(p.achievements).length}/{ACHIEVEMENTS.length}</div>
+        <div className="achv-grid">
+          {ACHIEVEMENTS.map((a) => {
+            const at = p.achievements[a.id];
+            return (
+              <div key={a.id} className={`achv-card ${at ? 'got' : ''}`}>
+                <b>{at ? a.title : '???'}</b>
+                <span>{a.desc}</span>
+                {at && <span className="when">{new Date(at).toLocaleDateString('ko-KR')}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
   );
 }

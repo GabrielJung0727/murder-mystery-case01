@@ -1,6 +1,7 @@
 import { CARD_BY_ID, CARDS } from '../data/cards';
-import { CHAR_BY_ID, CULPRIT, SUSPICION } from '../data/characters';
-import { NPC_SCRIPTS, type Reaction } from '../data/npcScripts';
+import { caseOf } from '../data/caseData';
+import { CHAR_BY_ID } from '../data/characters';
+import type { NpcScript, Reaction } from '../data/npcScripts';
 import type { CardId, CharId } from '../data/types';
 import { josa } from '../data/josa';
 import { pushLog } from './log';
@@ -25,8 +26,13 @@ function revealCard(state: GameState, card: CardId, by: CharId, why: string): vo
   });
 }
 
-/** 플레이어 조사 후, NPC들이 남은 카드에서 각 2장씩 가져간다. 불리한 카드는 숨기고 나머지는 공개한다. */
+/**
+ * 플레이어 조사 후, NPC들이 남은 카드에서 각 2장씩 가져간다. 불리한 카드는 숨기고 나머지는 공개한다.
+ * 어려움 모드에서는 자기에게 의심이 가는 카드도 숨긴다.
+ */
 export function npcDraw(state: GameState): void {
+  const data = caseOf(state);
+  const hard = state.options.difficulty === 'hard';
   for (const seat of state.seats) {
     if (seat.kind !== 'npc') continue;
     const char = seat.id as CharId;
@@ -35,7 +41,7 @@ export function npcDraw(state: GameState): void {
       if (pool.length === 0) break;
       const card = pool[Math.floor(nextRandom(state) * pool.length)];
       state.cards[card.id].owner = char;
-      if (NPC_SCRIPTS[char].hiddenPriority.includes(card.id)) {
+      if (data.scripts[char].hiddenPriority.includes(card.id) || (hard && data.suspicion[card.id] === char)) {
         pushLog(state, { kind: 'system', speaker: char, text: `${josa(CHAR_BY_ID[char].name, '이/가')} ${josa(card.location, '을/를')} 조사했지만 아무것도 공개하지 않았다.` });
       } else {
         revealCard(state, card.id, char, '공용 보드에 공개했다');
@@ -53,9 +59,9 @@ function matches(r: Reaction, cards: CardId[], state: number, flags: string[]): 
 }
 
 /** 가장 구체적인(카드 수가 많은) 반응을 고른다. 동률이면 스크립트 순서. */
-export function findReaction(char: CharId, cards: CardId[], npcState: number, flags: string[]): Reaction | null {
+export function findReaction(script: NpcScript, cards: CardId[], npcState: number, flags: string[]): Reaction | null {
   let best: Reaction | null = null;
-  for (const r of NPC_SCRIPTS[char].reactions) {
+  for (const r of script.reactions) {
     if (matches(r, cards, npcState, flags) && (!best || r.cards.length > best.cards.length)) best = r;
   }
   return best;
@@ -63,11 +69,13 @@ export function findReaction(char: CharId, cards: CardId[], npcState: number, fl
 
 export function npcReact(state: GameState, presenter: SeatId, target: CharId, cards: CardId[]): void {
   const mind = state.npc[target]!;
-  const script = NPC_SCRIPTS[target];
-  const reaction = findReaction(target, cards, mind.state, mind.flags);
+  const script = caseOf(state).scripts[target];
+  const reaction = findReaction(script, cards, mind.state, mind.flags);
   for (const c of cards) if (!mind.flags.includes(`presented_${c}`)) mind.flags.push(`presented_${c}`);
+  state.stats.presents += 1;
 
   if (!reaction) {
+    state.stats.misses += 1;
     pushLog(state, { kind: 'reaction', speaker: target, text: script.fallback });
     return;
   }
@@ -93,7 +101,8 @@ export function npcReact(state: GameState, presenter: SeatId, target: CharId, ca
       revealCard(state, card, (owner?.id as CharId) ?? target, '공용 보드에 내놓았다');
     }
   }
-  if (reaction.hint) pushLog(state, { kind: 'hint', target, text: reaction.hint });
+  // 어려움 모드: 다음 수를 알려 주는 단서 힌트를 주지 않는다
+  if (reaction.hint && state.options.difficulty !== 'hard') pushLog(state, { kind: 'hint', target, text: reaction.hint });
   if (reaction.solved) {
     state.solved = true;
     pushLog(state, { kind: 'narration', text: '진범의 자백을 받아냈다. 최종 결론 보고서로 사건을 정리하라.' });
@@ -102,9 +111,10 @@ export function npcReact(state: GameState, presenter: SeatId, target: CharId, ca
 
 /** 공개된 증거 기준, 자신을 제외하고 가장 의심스러운 인물 */
 function mostSuspicious(state: GameState, self: CharId): CharId {
+  const suspicion = caseOf(state).suspicion;
   const score: Partial<Record<CharId, number>> = {};
   for (const [id, cs] of Object.entries(state.cards)) {
-    const who = SUSPICION[id];
+    const who = suspicion[id];
     if (cs.public && who && who !== self) score[who] = (score[who] ?? 0) + 1;
   }
   const order: CharId[] = ['seongcheol', 'jaegu', 'yeojin', 'arin', 'seonbin'];
@@ -115,12 +125,13 @@ function mostSuspicious(state: GameState, self: CharId): CharId {
 
 /** NPC 최종 투표 규칙 (명세서 미기재 → 개발 측 결정) */
 export function npcVote(state: GameState, char: CharId): CharId {
-  if (state.solved) return CULPRIT;
-  if (char === CULPRIT) return mostSuspicious(state, char);
+  const { culprit, voteChain } = caseOf(state);
+  if (state.solved) return culprit;
+  if (char === culprit) return mostSuspicious(state, char);
   const mind = state.npc[char];
-  const culpritMind = state.npc[CULPRIT];
-  if (mind?.state === 2 && (culpritMind?.state ?? 0) >= 1) return CULPRIT;
-  const chain = ['14', '31', '34'].filter((c) => state.cards[c].public).length;
-  if (chain >= 2) return CULPRIT;
+  const culpritMind = state.npc[culprit];
+  if (mind?.state === 2 && (culpritMind?.state ?? 0) >= 1) return culprit;
+  const chain = voteChain.filter((c) => state.cards[c].public).length;
+  if (chain >= 2) return culprit;
   return mostSuspicious(state, char);
 }

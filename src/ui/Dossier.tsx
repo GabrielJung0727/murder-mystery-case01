@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { audio, type VoiceId } from '../audio/director';
 import { ART, ZONE_ART } from '../data/art';
 import { CARD_BY_ID, CARDS } from '../data/cards';
-import { CHAR_BY_ID, CHARACTERS, CULPRIT, TIME_MARKERS } from '../data/characters';
+import { caseOf } from '../data/caseData';
+import { CHARACTERS, TIME_MARKERS } from '../data/characters';
+import { goalsFor } from '../data/goals';
 import plan from '../data/floorplan.json';
 import { CASE_BRIEF, DETECTIVE_BRIEF, ROOM_LAYOUT, ROUND_INFO } from '../data/story';
 import type { CardId, ZoneId } from '../data/types';
@@ -68,7 +70,10 @@ function sceneShots(state: GameState): FilmShot[] {
 export function Dossier({ state, you, onClose, onOpenCard }: {
   state: GameState; you: SeatId | null; onClose: () => void; onOpenCard?: (c: CardId) => void;
 }) {
-  const me = you && you !== 'detective' ? CHAR_BY_ID[you] : null;
+  const data = caseOf(state);
+  const me = you && you !== 'detective' ? data.char(you) : null;
+  const myGoals = you ? goalsFor(you, data) : [];
+  const isCulprit = !!me && me.id === data.culprit;
   const tabs = TABS.filter((t) => t.id !== 'mine' || me);
   const [tab, setTab] = useState<Tab>(me ? 'mine' : 'case');
   const [film, setFilm] = useState<number | null>(null);
@@ -126,16 +131,20 @@ export function Dossier({ state, you, onClose, onOpenCard }: {
                     <h1>{me.name}</h1>
                     <p className="typed-meta">{me.tagline} / {me.mbti} / {me.gender} / 21세</p>
                   </div>
-                  <Stamp tilt={-12}>{me.id === CULPRIT ? '범인 역할' : 'CONFIDENTIAL'}</Stamp>
+                  <Stamp tilt={-12}>{isCulprit ? '범인 역할' : 'CONFIDENTIAL'}</Stamp>
                 </div>
-                {me.id === CULPRIT && <p className="ink-note">당신은 범인입니다. 거짓과 정치를 통해 지목을 회피하십시오. — 이 기록은 본인에게만 보입니다.</p>}
+                {isCulprit && <p className="ink-note">당신은 범인입니다. 거짓과 정치를 통해 지목을 회피하십시오. — 이 기록은 본인에게만 보입니다.</p>}
                 <div className="sheet-cols">
                   <section><h4>겉으로 알려진 정보</h4><p>{me.publicInfo}</p></section>
                   <section className="secret"><h4>당신만 아는 비밀</h4><p>{me.secret}</p></section>
                   <section><h4>알리바이와 시간표</h4><p>{me.alibi}</p></section>
                   <section><h4>알고 있는 사실</h4><ul>{me.knows.map((k) => <li key={k}>{k}</li>)}</ul></section>
                   <section><h4>숨기고 싶은 사실</h4><ul>{me.hide.map((k) => <li key={k}>{k}</li>)}</ul></section>
-                  <section><h4>개인 목표</h4><p>{me.goal}</p></section>
+                  <section>
+                    <h4>개인 목표 (달성할 때마다 +1점)</h4>
+                    <p>{me.goal}</p>
+                    <ul className="goal-list">{myGoals.map((g) => <li key={g.id}>{g.label}</li>)}</ul>
+                  </section>
                 </div>
                 <p className="hand-memo">{me.firstLine}</p>
               </article>
@@ -166,6 +175,8 @@ export function Dossier({ state, you, onClose, onOpenCard }: {
                       <div className="grow">
                         <h3>수사관 브리핑 <VoiceButton ids={['NAR-B01']} compact /></h3>
                         <p className="typed">{DETECTIVE_BRIEF}</p>
+                        <h4 style={{ marginTop: 10 }}>수사관 목표 (달성할 때마다 +1점)</h4>
+                        <ul className="goal-list">{myGoals.map((g) => <li key={g.id}>{g.label}</li>)}</ul>
                       </div>
                     </div>
                   </article>

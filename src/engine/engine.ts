@@ -1,39 +1,57 @@
 import { CARDS, CARD_BY_ID } from '../data/cards';
-import { CHAR_BY_ID, CHAR_IDS, CLAIMS } from '../data/characters';
-import { NPC_SCRIPTS, ROUND_OPENINGS } from '../data/npcScripts';
+import { caseOf } from '../data/caseData';
+import { CHAR_BY_ID, CHAR_IDS } from '../data/characters';
+import { ROUND_OPENINGS } from '../data/npcScripts';
+import { VARIANTS, VARIANT_IDS, type VariantId } from '../data/variants';
 import { OPENING_NARRATION, ROUND_INFO } from '../data/story';
 import type { CardId, CharId } from '../data/types';
 import { josa } from '../data/josa';
 import { pushLog } from './log';
-import { npcDraw, npcReact } from './npc';
+import { nextRandom, npcDraw, npcReact } from './npc';
 import { finalize } from './scoring';
-import type { Action, GameState, Seat, SeatId, Timers } from './types';
+import type { Action, GameOptions, GameState, Seat, SeatId, Timers } from './types';
 
 export const AP_PER_ROUND = 2;
 export const DEFAULT_TIMERS: Timers = { prologue: 10, investigate: 5, discuss: 15, final: 20 };
+export const DEFAULT_OPTIONS: GameOptions = { variantMode: 'original', difficulty: 'normal' };
+/** 어려움 모드 싱글: 심문 단계마다 증거를 제시할 수 있는 횟수 */
+export const HARD_PRESENTS = 5;
+
+/**
+ * 사건 선택에 맞춰 진범 변형을 고른다. 싱글에서는 플레이어 본인이 진범인 변형은 고르지 않는다
+ * (싱글에는 플레이어를 심문하는 NPC 로직이 없다).
+ */
+export function pickVariant(state: GameState, player?: SeatId): VariantId {
+  const pool = VARIANT_IDS.filter((v) => (state.options.variantMode === 'variant' ? v !== 'v0' : true))
+    .filter((v) => VARIANTS[v].culprit !== player);
+  if (state.options.variantMode === 'original' || pool.length === 0) return 'v0';
+  return pool[Math.floor(nextRandom(state) * pool.length)];
+}
 
 function emptyCards(): GameState['cards'] {
   return Object.fromEntries(CARDS.map((c) => [c.id, { owner: null, public: false, inspectedBy: [] }]));
 }
 
-function baseState(mode: GameState['mode'], seats: Seat[], seed: number, timers: Timers): GameState {
+function baseState(mode: GameState['mode'], seats: Seat[], seed: number, timers: Timers, options: GameOptions): GameState {
   return {
     mode, phase: 'lobby', round: 0, seats,
     cards: emptyCards(), strings: [], contradictions: [], npc: {},
     log: [], logSeq: 0, reports: {}, result: null, solved: false,
     seed: seed >>> 0 || 1, phaseEndsAt: null, timers, spotlight: null,
+    variant: 'v0', options, stats: { presents: 0, misses: 0 }, presentsLeft: null,
   };
 }
 
 /** 1인 싱글플레이: 수사관 모드(detective) 또는 무고한 용의자 1인 시점 */
-export function createSingleGame(player: SeatId, seed = Date.now()): GameState {
+export function createSingleGame(player: SeatId, seed = Date.now(), options: GameOptions = DEFAULT_OPTIONS): GameState {
   if (player === 'seonbin') throw new Error('싱글 플레이에서 이선빈은 선택할 수 없습니다.');
   const seats: Seat[] = [];
   if (player === 'detective') seats.push({ id: 'detective', kind: 'human', name: '수사관', ap: 0, submitted: false });
   for (const id of CHAR_IDS) {
     seats.push({ id, kind: id === player ? 'human' : 'npc', name: CHAR_BY_ID[id].name, ap: 0, submitted: false });
   }
-  const s = baseState('single', seats, seed, { prologue: 0, investigate: 0, discuss: 0, final: 0 });
+  const s = baseState('single', seats, seed, { prologue: 0, investigate: 0, discuss: 0, final: 0 }, options);
+  s.variant = pickVariant(s, player);
   for (const seat of seats) {
     if (seat.kind === 'npc') s.npc[seat.id as CharId] = { state: 0, flags: [] };
   }
@@ -41,9 +59,17 @@ export function createSingleGame(player: SeatId, seed = Date.now()): GameState {
 }
 
 /** 5인 온라인: 로비에서 좌석이 채워진다 */
-export function createOnlineGame(timers: Timers = DEFAULT_TIMERS, seed = Date.now()): GameState {
+export function createOnlineGame(timers: Timers = DEFAULT_TIMERS, seed = Date.now(), options: GameOptions = DEFAULT_OPTIONS): GameState {
   const seats: Seat[] = CHAR_IDS.map((id) => ({ id, kind: 'empty', ap: 0, submitted: false }));
-  return baseState('online', seats, seed, timers);
+  return baseState('online', seats, seed, timers, options);
+}
+
+/** 온라인 로비에서 호스트가 사건 선택·난이도를 바꾼다 */
+export function setOptions(prev: GameState, options: GameOptions): GameState {
+  if (prev.phase !== 'lobby') return prev;
+  const variantMode = (['original', 'variant', 'any'] as const).includes(options.variantMode) ? options.variantMode : 'original';
+  const difficulty = options.difficulty === 'hard' ? 'hard' : 'normal';
+  return { ...prev, options: { variantMode, difficulty } };
 }
 
 /** 로그에 쓰는 인물명 (온라인 닉네임이 아닌 극중 이름) */
@@ -83,6 +109,7 @@ function startDiscussion(state: GameState): void {
   state.phase = 'discuss';
   for (const seat of state.seats) seat.ap = 0;
   if (state.mode !== 'single') return;
+  state.presentsLeft = state.options.difficulty === 'hard' ? HARD_PRESENTS : null;
   npcDraw(state);
   const opening = ROUND_OPENINGS[state.round as 1 | 2 | 3];
   pushLog(state, { kind: 'narration', text: opening.narration });
@@ -96,6 +123,8 @@ function advance(state: GameState, now: number): void {
   switch (state.phase) {
     case 'lobby':
       if (humanSeats(state).length === 0) return;
+      // 온라인은 자리가 다 정해진 뒤 진범 변형을 고른다 (누가 진범 역할을 받을지 미리 알 수 없게)
+      if (state.mode === 'online') state.variant = pickVariant(state);
       state.phase = 'prologue';
       pushLog(state, { kind: 'narration', text: OPENING_NARRATION });
       break;
@@ -106,6 +135,7 @@ function advance(state: GameState, now: number): void {
       startDiscussion(state);
       break;
     case 'discuss':
+      state.presentsLeft = null;
       if (state.round < 3) startRound(state, (state.round + 1) as 2 | 3);
       else {
         state.phase = 'final';
@@ -180,13 +210,18 @@ export function applyAction(prev: GameState, action: Action, now = Date.now()): 
     }
 
     case 'contradict': {
-      const claim = CLAIMS.find((c) => c.id === action.claimId);
+      const claim = caseOf(state).claims.find((c) => c.id === action.claimId);
       if (!claim || !canSee(state, action.seat, action.card)) return prev;
       if (state.contradictions.some((c) => c.claimId === claim.id && c.card === action.card)) return prev;
       const ok = claim.contradictedBy.includes(action.card);
       const verified = claim.verifiedBy.includes(action.card);
       state.contradictions.push({ claimId: claim.id, card: action.card, seat: action.seat, ok });
       const who = CHAR_BY_ID[claim.char].name;
+      // 어려움 모드: 판정은 엔딩에서 공개하고, 지금은 대조했다는 사실만 남긴다
+      if (state.options.difficulty === 'hard') {
+        pushLog(state, { kind: 'contradiction', speaker: action.seat, cards: [action.card], text: `증거 ${josa(action.card, '을/를')} ${who}의 진술 「${claim.label}」 옆에 놓았다. (판정은 사건 종결 후 공개)` });
+        return state;
+      }
       pushLog(state, {
         kind: 'contradiction', speaker: action.seat, cards: [action.card],
         text: ok ? `모순 발견! 증거 ${josa(action.card, '은/는')} ${who}의 진술 「${claim.label}」과 어긋난다.`
@@ -206,7 +241,11 @@ export function applyAction(prev: GameState, action: Action, now = Date.now()): 
         text: `${seatLabel(action.seat)}: ${target ? `${CHAR_BY_ID[target].name}에게 ` : ''}증거 ${cards.join(' + ')} 제시!`,
       });
       if (state.mode === 'single') {
-        if (!target || seatOf(state, target)?.kind !== 'npc' || !NPC_SCRIPTS[target]) return prev;
+        if (!target || seatOf(state, target)?.kind !== 'npc') return prev;
+        if (state.presentsLeft !== null) {
+          if (state.presentsLeft <= 0) return prev;
+          state.presentsLeft -= 1;
+        }
         npcReact(state, action.seat, target, cards);
       } else {
         state.spotlight = { seat: action.seat, cards, target, at: now };

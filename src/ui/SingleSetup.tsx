@@ -5,8 +5,9 @@ import { ART, shadedBg } from '../data/art';
 import { DETECTIVE_BRIEF } from '../data/story';
 import type { CharId } from '../data/types';
 import type { SingleSave } from '../client/saveGame';
-import type { SeatId } from '../engine/types';
+import type { GameOptions, SeatId } from '../engine/types';
 import { Desk, Folder, Polaroid, seatName } from './bits';
+import { OptionsPicker } from './OptionsPicker';
 
 /** 1회차 클리어 후 해금되는 시점. 이선빈(진범)은 싱글에서 제공하지 않는다. */
 const UNLOCKABLE: CharId[] = ['jaegu', 'yeojin', 'arin'];
@@ -15,9 +16,11 @@ const TILTS = [-1.4, 1, -0.6, 1.3, -1];
 const PHASE: Record<string, string> = { prologue: '프롤로그', investigate: '조사', discuss: '심문', final: '최종 추리' };
 
 export function SingleSetup({ cleared, save, onBack, onStart, onResume }: {
-  cleared: boolean; save: SingleSave | null; onBack: () => void; onStart: (p: SeatId) => void; onResume: (s: SingleSave) => void;
+  cleared: boolean; save: SingleSave | null; onBack: () => void; onStart: (p: SeatId, o: GameOptions) => void; onResume: (s: SingleSave) => void;
 }) {
   const [pick, setPick] = useState<SeatId>('detective');
+  // 처음에는 원작을, 한 번 엔딩을 본 뒤에는 변형을 권한다
+  const [opts, setOpts] = useState<GameOptions>({ variantMode: cleared ? 'variant' : 'original', difficulty: 'normal' });
   const options: SeatId[] = ['detective', 'seongcheol', ...(cleared ? UNLOCKABLE : [])];
 
   return (
@@ -33,6 +36,7 @@ export function SingleSetup({ cleared, save, onBack, onStart, onResume }: {
             <button className="btn primary" onClick={() => onResume(save)}>이어서 수사하기 →</button>
           </div>
         )}
+        <OptionsPicker value={opts} onChange={setOpts} />
         <div className="folder-grid">
           {options.map((id, i) => {
             const c = id === 'detective' ? null : CHAR_BY_ID[id];
@@ -72,7 +76,7 @@ export function SingleSetup({ cleared, save, onBack, onStart, onResume }: {
             className={`btn ${save ? '' : 'primary'}`}
             onClick={() => {
               if (save && !window.confirm('새로 시작하면 저장된 수사 기록이 지워집니다. 계속할까요?')) return;
-              onStart(pick);
+              onStart(pick, opts);
             }}
           >
             {save ? '새 수사 시작 →' : '사건 현장으로 →'}

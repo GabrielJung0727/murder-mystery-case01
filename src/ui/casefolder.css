@@ -213,3 +213,8 @@ button.ev-tag:hover { transform: rotate(-1deg) translateY(-1px); background: #ef
 .me-tag { display: inline-flex; align-items: center; gap: 8px; padding: 2px 12px 2px 3px; border: 1px solid #3b2f25; border-radius: 999px; background: rgba(38, 33, 29, .8); color: #d8cbb0; font-size: 12.5px; }
 .me-tag .avatar { width: 26px; height: 26px; border-width: 1px; }
 .case-file.compact .stamp { top: auto; right: auto; bottom: 16px; left: 14px; font-size: 13px; }
+
+/* 개인 목표 체크리스트 */
+.goal-list { margin: 6px 0 0; padding-left: 0; list-style: none; }
+.goal-list li { position: relative; padding-left: 20px; margin: 3px 0; }
+.goal-list li::before { content: ''; position: absolute; left: 2px; top: .45em; width: 10px; height: 10px; border: 1.5px solid currentColor; border-radius: 2px; opacity: .7; }

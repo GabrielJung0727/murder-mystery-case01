@@ -85,7 +85,7 @@ export function Title({ onSingle, onOnline }: { onSingle: () => void; onOnline: 
             </button>
           )}
         </div>
-        <p className="title-foot">PLAYERS 5 · EVIDENCE 35 · ENDINGS 4</p>
+        <p className="title-foot">PLAYERS 5 · EVIDENCE 35 · CASES 3 · ENDINGS 4</p>
       </div>
       <div className="build-line">BUILD v{APP_VERSION}-STABLE // {bridge ? 'STANDALONE .EXE' : 'WEB PREVIEW'}</div>
       {modal === 'settings' && <Settings onClose={() => setModal(null)} />}

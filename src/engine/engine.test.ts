@@ -96,17 +96,19 @@ describe('single player flow', () => {
     s = applyAction(s, { type: 'submit', seat: 'seongcheol', report: CORRECT });
     expect(s.phase).toBe('ending');
     expect(s.result?.ending).toBe('A');
-    expect(s.result?.scores.seongcheol).toMatchObject({ culprit: 2, motive: 1, timeMethod: 1, evidence: 1, bonus: 1, total: 6 });
+    // 개인 목표 3개: 증거 13 비공개, 최다 득표 아님, 진범 지목
+    expect(s.result?.scores.seongcheol).toMatchObject({ culprit: 2, motive: 1, timeMethod: 1, evidence: 1, bonus: 3, total: 8 });
+    expect(s.result?.ranks.seongcheol).toBe('S');
   });
 });
 
 describe('ending decision', () => {
   const t = (o: Partial<Record<CharId, number>>) => Object.fromEntries(CHAR_IDS.map((c) => [c, o[c] ?? 0])) as Record<CharId, number>;
   it('A on majority, B on plurality, C on wrong, D on tie', () => {
-    expect(decideEnding(t({ seonbin: 3, jaegu: 2 }), 5).ending).toBe('A');
-    expect(decideEnding(t({ seonbin: 2, jaegu: 1, arin: 1, yeojin: 1 }), 5).ending).toBe('B');
-    expect(decideEnding(t({ jaegu: 3, seonbin: 2 }), 5).ending).toBe('C');
-    expect(decideEnding(t({ jaegu: 2, seonbin: 2, arin: 1 }), 5).ending).toBe('D');
+    expect(decideEnding(t({ seonbin: 3, jaegu: 2 }), 5, 'seonbin').ending).toBe('A');
+    expect(decideEnding(t({ seonbin: 2, jaegu: 1, arin: 1, yeojin: 1 }), 5, 'seonbin').ending).toBe('B');
+    expect(decideEnding(t({ jaegu: 3, seonbin: 2 }), 5, 'seonbin').ending).toBe('C');
+    expect(decideEnding(t({ jaegu: 2, seonbin: 2, arin: 1 }), 5, 'seonbin').ending).toBe('D');
   });
 });
 

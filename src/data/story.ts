@@ -69,9 +69,9 @@ export const ENDINGS: Record<EndingId, { title: string; text: string }> = {
 export const AFTERWORD =
   '정재우는 강호연의 권한을 회수하는 계획을 생각했고, 남여진과 김아린은 그를 도왔다. 이성철은 운영자 승인을 얻기 위해 로비를 했다. 정재구는 강호연의 친구였지만 그와 언쟁했다. 이선빈은 양측의 갈등 속에서 자신의 사의조차 인정받지 못한다고 느꼈다. 이 모든 사실은 각각의 인물에게 의심을 만들지만, 누구도 이선빈의 행동을 대신하지 않는다.';
 
-/** 빈칸 채우기 추리 노트 선택지 (기획서 4.3) */
+/** 빈칸 채우기 추리 노트 선택지 (기획서 4.3). 동기의 정답은 판의 진범 변형이 정한다 (variants.ts) */
 export const MOTIVE_OPTIONS = [
-  { id: 'resign', label: '반복된 운영자 사의 거절과 중재 압박', correct: true },
+  { id: 'resign', label: '반복된 운영자 사의 거절과 중재 압박' },
   { id: 'lobby', label: '운영자 임명 로비가 드러날 위기' },
   { id: 'friendship', label: '규정집과 축출을 둘러싼 우정의 파탄' },
   { id: 'takeover', label: '정재우와 공모한 소장 권한 탈취' },

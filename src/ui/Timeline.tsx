@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CARD_BY_ID, CARDS } from '../data/cards';
-import { CHAR_BY_ID, CHAR_IDS, CLAIMS, TIME_MARKERS } from '../data/characters';
+import { caseOf } from '../data/caseData';
+import { CHAR_BY_ID, CHAR_IDS, TIME_MARKERS } from '../data/characters';
 import type { CardId } from '../data/types';
 import { canSee } from '../engine/engine';
 import type { Action, GameState, SeatId } from '../engine/types';
@@ -21,12 +22,15 @@ export function Timeline({ state, you, dispatch }: { state: GameState; you: Seat
   const [over, setOver] = useState<string | null>(null);
   const [spark, setSpark] = useState<string | null>(null);
   const visible = you ? CARDS.filter((c) => canSee(state, you, c.id)).map((c) => c.id) : [];
+  const claims = caseOf(state).claims;
+  // 어려움 모드: 모순·검증 판정을 엔딩까지 숨긴다
+  const blind = state.options.difficulty === 'hard' && state.phase !== 'ending';
 
   const tryClaim = (claimId: string, card: CardId | null) => {
     if (!card || !you) return;
-    const claim = CLAIMS.find((c) => c.id === claimId)!;
+    const claim = claims.find((c) => c.id === claimId)!;
     dispatch({ type: 'contradict', seat: you, claimId, card });
-    if (claim.contradictedBy.includes(card)) {
+    if (!blind && claim.contradictedBy.includes(card)) {
       setSpark(claimId);
       setTimeout(() => setSpark(null), 900);
     }
@@ -36,16 +40,17 @@ export function Timeline({ state, you, dispatch }: { state: GameState; you: Seat
   return (
     <div className="timeline">
       <p className="muted" style={{ fontSize: 12 }}>
-        각 인물이 주장하는 알리바이 블록 위에 증거 카드를 끌어다 놓거나, 카드를 고른 뒤 블록을 클릭하세요. 진술과 어긋나면 모순으로 표시됩니다.
+        각 인물이 주장하는 알리바이 블록 위에 증거 카드를 끌어다 놓거나, 카드를 고른 뒤 블록을 클릭하세요.
+        {blind ? ' 어려움 모드: 어긋나는지는 사건이 끝난 뒤에 공개됩니다. 스스로 판단하세요.' : ' 진술과 어긋나면 모순으로 표시됩니다.'}
       </p>
       <div className="tl-grid">
         <div />
         <div className="tl-axis">{TICKS.map((t) => <span key={t} style={{ left: pct(t) }}>{t}</span>)}</div>
         {CHAR_IDS.map((char) => {
-          const claim = CLAIMS.find((c) => c.char === char)!;
+          const claim = claims.find((c) => c.char === char)!;
           const marks = state.contradictions.filter((c) => c.claimId === claim.id);
-          const contradicted = marks.some((m) => m.ok);
-          const verified = marks.some((m) => claim.verifiedBy.includes(m.card));
+          const contradicted = !blind && marks.some((m) => m.ok);
+          const verified = !blind && marks.some((m) => claim.verifiedBy.includes(m.card));
           const color = CHAR_BY_ID[char].color;
           return (
             <div key={char} style={{ display: 'contents' }}>

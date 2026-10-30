@@ -1,45 +1,49 @@
-import { KEY_CHAIN } from '../data/cards';
-import { CHAR_IDS, CULPRIT } from '../data/characters';
-import { METHOD_OPTIONS, MOTIVE_OPTIONS, TIME_OPTIONS, type EndingId } from '../data/story';
+import { caseOf, type CaseData } from '../data/caseData';
+import { CHAR_IDS } from '../data/characters';
+import { goalsFor } from '../data/goals';
+import type { EndingId } from '../data/story';
 import type { CharId } from '../data/types';
 import { npcVote } from './npc';
-import type { GameState, Report, ScoreBreakdown, SeatId } from './types';
+import type { GameState, GoalResult, Rank, Report, ScoreBreakdown, SeatId } from './types';
 
-const correct = (opts: { id: string; correct?: boolean }[], id: string | null) =>
-  !!id && !!opts.find((o) => o.id === id)?.correct;
-
-export function scoreReport(report: Report | undefined): Omit<ScoreBreakdown, 'bonus' | 'total'> {
+export function scoreReport(report: Report | undefined, data: CaseData): Omit<ScoreBreakdown, 'bonus' | 'total'> {
   if (!report) return { culprit: 0, motive: 0, timeMethod: 0, evidence: 0 };
   return {
-    culprit: report.culprit === CULPRIT ? 2 : 0,
-    motive: correct(MOTIVE_OPTIONS, report.motive) ? 1 : 0,
-    timeMethod: correct(TIME_OPTIONS, report.time) && correct(METHOD_OPTIONS, report.method) ? 1 : 0,
-    evidence: report.evidence.filter((c) => KEY_CHAIN.includes(c)).length >= 2 ? 1 : 0,
+    culprit: report.culprit === data.culprit ? 2 : 0,
+    motive: data.isCorrect('motive', report.motive) ? 1 : 0,
+    timeMethod: data.isCorrect('time', report.time) && data.isCorrect('method', report.method) ? 1 : 0,
+    evidence: report.evidence.filter((c) => data.keyChain.includes(c)).length >= 2 ? 1 : 0,
   };
 }
 
-/** 개인 목표 달성 보너스 (자동 판정 기준은 캐릭터 시트 goal 에 명시) */
-export function personalGoal(state: GameState, seat: SeatId, tally: Record<CharId, number>, top: CharId[]): boolean {
-  switch (seat) {
-    case 'seongcheol': return !state.cards['13'].public;
-    case 'yeojin': return !top.includes('yeojin') && !top.includes('arin');
-    case 'seonbin': return !top.includes('seonbin');
-    case 'arin': return state.cards['34'].public && !top.includes('arin');
-    case 'jaegu': return !top.includes('jaegu') && tally.jaegu <= 1;
-    default: return false;
-  }
-}
-
-export function decideEnding(tally: Record<CharId, number>, voters: number): { ending: EndingId; top: CharId[] } {
+export function decideEnding(tally: Record<CharId, number>, voters: number, culprit: CharId): { ending: EndingId; top: CharId[] } {
   const max = Math.max(...CHAR_IDS.map((c) => tally[c]));
   const top = max > 0 ? CHAR_IDS.filter((c) => tally[c] === max) : [];
   if (top.length !== 1) return { ending: 'D', top };
-  if (top[0] !== CULPRIT) return { ending: 'C', top };
+  if (top[0] !== culprit) return { ending: 'C', top };
   const majority = Math.floor(voters / 2) + 1;
-  return { ending: tally[CULPRIT] >= majority ? 'A' : 'B', top };
+  return { ending: tally[culprit] >= majority ? 'A' : 'B', top };
+}
+
+/**
+ * 판 결과 랭크.
+ * - 수사하는 쪽: 보고서(최대 5) + 개인 목표(최대 3) = 8점 만점. 어려움 모드 +1, 싱글에서 헛짚은 제시 8회 이상 -1.
+ *   S는 8점 이상, A는 6점 이상이면서 진범을 맞혀야 한다.
+ * - 진범 역할: 개인 목표(최대 3)만 본다. 3개 S, 2개 A, 1개 B, 0개 C.
+ */
+export function rankOf(p: { score: ScoreBreakdown; isCulprit: boolean; hard: boolean; misses: number; single: boolean }): Rank {
+  if (p.isCulprit) return (['C', 'B', 'A', 'S'] as const)[Math.min(3, p.score.bonus)];
+  const pts = p.score.total + (p.hard ? 1 : 0) - (p.single && p.misses >= 8 ? 1 : 0);
+  const right = p.score.culprit > 0;
+  if (pts >= 8 && right) return 'S';
+  if (pts >= 6 && right) return 'A';
+  if (pts >= 4) return 'B';
+  if (pts >= 2) return 'C';
+  return 'D';
 }
 
 export function finalize(state: GameState): void {
+  const data = caseOf(state);
   const votes: Partial<Record<SeatId, CharId | null>> = {};
   for (const seat of state.seats) {
     if (seat.kind === 'human') votes[seat.id] = state.reports[seat.id]?.culprit ?? null;
@@ -50,14 +54,24 @@ export function finalize(state: GameState): void {
   for (const v of Object.values(votes)) {
     if (v) { tally[v] += 1; voters += 1; }
   }
-  const { ending, top } = decideEnding(tally, voters);
+  const { ending, top } = decideEnding(tally, voters, data.culprit);
   const scores: Partial<Record<SeatId, ScoreBreakdown>> = {};
+  const goals: Partial<Record<SeatId, GoalResult[]>> = {};
+  const ranks: Partial<Record<SeatId, Rank>> = {};
   for (const seat of state.seats) {
     if (seat.kind !== 'human') continue;
-    const base = scoreReport(state.reports[seat.id]);
-    const bonus = personalGoal(state, seat.id, tally, top) ? 1 : 0;
-    scores[seat.id] = { ...base, bonus, total: base.culprit + base.motive + base.timeMethod + base.evidence + bonus };
+    const report = state.reports[seat.id];
+    const done = goalsFor(seat.id, data).map((g) => ({ id: g.id, label: g.label, done: g.check({ state, seat: seat.id, data, tally, top, report }) }));
+    const base = scoreReport(report, data);
+    const bonus = done.filter((g) => g.done).length;
+    const score = { ...base, bonus, total: base.culprit + base.motive + base.timeMethod + base.evidence + bonus };
+    scores[seat.id] = score;
+    goals[seat.id] = done;
+    ranks[seat.id] = rankOf({
+      score, isCulprit: seat.id === data.culprit, hard: state.options.difficulty === 'hard',
+      misses: state.stats.misses, single: state.mode === 'single',
+    });
   }
-  state.result = { votes, tally, top, ending, scores };
+  state.result = { votes, tally, top, ending, scores, goals, ranks };
   state.phaseEndsAt = null;
 }
