@@ -44,9 +44,10 @@ export const EPISODES: Episode[] = [
     title: '흔들리지 않는 신념으로',
     genre: '법정',
     tagline: 'COURTROOM DRAMA',
-    blurb: '법정에서 펼쳐지는 두 번째 기록. 지금 집필 중입니다.',
-    meta: ['재판', '준비 중'],
+    blurb: '1920년 12월 16일, 경성. 조선 총독을 향한 단 한 발의 총성. 암살 미수 혐의로 기소된 세 사람의 재판이 열린다.',
+    meta: ['혼자 하기', '재판 3라운드', '엔딩 6'],
     cover: { base: '#1d2f4a', edge: '#0d1626', ink: '#d9dfe8' },
+    Root: lazy(() => import('../episodes/conviction/App').then((m) => ({ default: m.App }))),
   },
 ];
 

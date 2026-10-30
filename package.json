@@ -21,6 +21,7 @@
     "start:cloud": "node dist-server/cloud.cjs"
   },
   "dependencies": {
+    "@fontsource/nanum-brush-script": "5.3.0",
     "@fontsource/nanum-gothic-coding": "5.3.0",
     "@fontsource/nanum-myeongjo": "5.3.0",
     "@fontsource/nanum-pen-script": "5.3.0",
