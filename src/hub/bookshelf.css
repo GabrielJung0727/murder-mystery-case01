@@ -1,0 +1,84 @@
+/* 책장 (에피소드 선택) — src/hub/Bookshelf.tsx */
+.hub { background:
+  radial-gradient(ellipse 60% 45% at 50% 0%, rgba(217, 164, 65, .16), transparent 70%),
+  linear-gradient(180deg, #120d0a 0%, #0a0807 60%, #050404 100%); }
+.hub-lamp { position: absolute; inset: 0 0 auto; height: 55%; pointer-events: none;
+  background: radial-gradient(ellipse 34% 60% at 50% 0%, rgba(255, 214, 150, .10), transparent 72%); animation: lamp 7s ease-in-out infinite; }
+@keyframes lamp { 0%, 100% { opacity: 1; } 47% { opacity: .82; } 50% { opacity: .55; } 53% { opacity: .9; } }
+
+.hub-wrap { position: relative; z-index: 1; width: min(980px, 100%); display: flex; flex-direction: column; gap: 22px; }
+.hub-head { text-align: center; display: flex; flex-direction: column; gap: 10px; }
+.hub-kicker { font-family: var(--type); font-size: 12px; letter-spacing: .32em; color: var(--amber); opacity: .8; }
+.hub-head h1 { font-family: var(--serif); font-weight: 800; font-size: 40px; letter-spacing: .08em; color: #eadfcb; text-shadow: 0 2px 18px rgba(0, 0, 0, .8); }
+
+/* 선반 */
+.shelf { position: relative; padding: 0 18px; }
+.shelf-row { height: clamp(220px, 38vh, 330px); display: flex; align-items: flex-end; gap: 6px; padding: 0 24px;
+  background: linear-gradient(180deg, #1a120c, #23180f 85%, #2b1d12);
+  border: 10px solid #3a2616; border-bottom: none; border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 18px 30px rgba(0, 0, 0, .7), inset 0 -6px 14px rgba(0, 0, 0, .5); }
+.shelf-board { height: 22px; margin: 0 -8px; border-radius: 3px;
+  background: linear-gradient(180deg, #6b4a2c, #4a321d 55%, #2c1d10);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 220, 170, .18); }
+.bookend { width: 14px; height: 46%; margin-right: 6px; border-radius: 2px 2px 0 0; background: linear-gradient(90deg, #5a5f66, #2e3237); box-shadow: 2px 0 6px rgba(0, 0, 0, .6); }
+.bookend.right { margin: 0 0 0 auto; }
+
+/* 책등 */
+.book { position: relative; width: 78px; height: 94%; padding: 14px 0 12px; border: none; border-radius: 3px 3px 1px 1px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, .45), transparent 14%, rgba(255, 255, 255, .07) 30%, transparent 46%, transparent 84%, rgba(0, 0, 0, .5)),
+    linear-gradient(180deg, transparent 7%, rgba(233, 205, 150, .5) 7.4%, transparent 8.2%, transparent 91.8%, rgba(233, 205, 150, .5) 92.2%, transparent 92.6%),
+    var(--base);
+  box-shadow: inset 0 0 0 1px var(--edge), 3px 0 8px rgba(0, 0, 0, .55);
+  transition: transform .28s cubic-bezier(.2, .8, .3, 1.2), box-shadow .28s, filter .2s; }
+.book:hover { transform: translateY(-8px); }
+.book.on { transform: translateY(-26px); box-shadow: inset 0 0 0 1px var(--edge), 0 14px 26px rgba(0, 0, 0, .7), 0 0 26px rgba(217, 164, 65, .28); }
+.book:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.book + .book:not(.blank) { height: 98%; }
+.book.soon { filter: saturate(.75) brightness(.85); }
+.book.soon.on { filter: none; }
+.spine-no { font-family: var(--type); font-size: 11px; letter-spacing: .12em; opacity: .85; }
+.spine-title { flex: 1; min-height: 0; writing-mode: vertical-rl; white-space: nowrap; font-family: var(--serif); font-weight: 800; font-size: 21px; letter-spacing: .16em; text-shadow: 0 1px 0 rgba(0, 0, 0, .6); overflow: hidden; }
+.spine-genre { font-size: 11px; letter-spacing: .1em; opacity: .75; }
+.spine-band { align-self: stretch; text-align: center; padding: 3px 0; font-size: 10px; letter-spacing: .14em; font-weight: 700;
+  color: #241b10; background: linear-gradient(#d9c08a, #b89a5e); box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.book.blank { padding: 0; cursor: default; opacity: .55; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5), 2px 0 6px rgba(0, 0, 0, .5); }
+.book.blank:hover { transform: none; }
+
+/* 고른 책의 표지 */
+.cover { display: grid; grid-template-columns: 1fr auto; gap: 22px; align-items: center; padding: 22px 26px; border-radius: 4px 12px 12px 4px;
+  color: var(--ink); background: linear-gradient(100deg, rgba(0, 0, 0, .35), transparent 6%), var(--base);
+  box-shadow: inset 6px 0 0 var(--edge), inset 0 0 0 1px rgba(0, 0, 0, .4), 0 18px 40px rgba(0, 0, 0, .6);
+  animation: cover-in .35s ease-out; transform-origin: left center; }
+@keyframes cover-in { from { opacity: 0; transform: translateY(10px); } }
+.cover-face { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.cover-tag { font-family: var(--type); font-size: 11px; letter-spacing: .26em; opacity: .75; }
+.cover h2 { font-family: var(--serif); font-weight: 800; font-size: 32px; letter-spacing: .06em; }
+.cover p { line-height: 1.75; opacity: .9; max-width: 56ch; }
+.cover-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.cover-meta span { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border: 1px solid currentColor; border-radius: 99px; opacity: .7; }
+.cover-side { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cover-open { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; font-size: 15px; }
+.cover-stamp { font-family: var(--type); font-size: 18px; letter-spacing: .2em; padding: 8px 16px; color: #c9b27a; border: 2px solid #c9b27a; border-radius: 4px; transform: rotate(-6deg); opacity: .85; }
+.cover-hint { font-size: 11px; }
+
+/* 펼치기: 표지가 넘어가며 화면이 어두워진다 */
+.hub.opening .cover { animation: cover-open .65s ease-in forwards; }
+.hub.opening .hub-wrap { animation: hub-fade .65s ease-in forwards; }
+@keyframes cover-open { to { transform: perspective(1200px) rotateY(-80deg); opacity: 0; } }
+@keyframes hub-fade { 60% { opacity: 1; } to { opacity: 0; } }
+.hub-loading { font-family: var(--type); letter-spacing: .2em; color: var(--muted); }
+
+@media (max-width: 760px) {
+  .shelf-row { height: 260px; padding: 0 10px; gap: 4px; }
+  .book { width: 62px; }
+  .book.blank:nth-of-type(n+5) { display: none; }
+  .spine-title { font-size: 17px; }
+  .hub-head h1 { font-size: 28px; }
+  .cover { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hub-lamp, .cover { animation: none; }
+  .book { transition: none; }
+}

@@ -1,4 +1,4 @@
-import { FileText, Images, Power, Settings as SettingsIcon } from 'lucide-react';
+import { FileText, Images, Library, Power, Settings as SettingsIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../audio/director';
 import { APP_VERSION, bridge } from '../client/bridge';
@@ -31,7 +31,7 @@ function useTypewriter(text: string, speed = 70, delay = 400): string {
 
 const DRIPS = [{ left: '18%', delay: '0s' }, { left: '57%', delay: '2.1s' }, { left: '83%', delay: '3.7s' }];
 
-export function Title({ onSingle, onOnline }: { onSingle: () => void; onOnline: () => void }) {
+export function Title({ onSingle, onOnline, onShelf }: { onSingle: () => void; onOnline: () => void; onShelf: () => void }) {
   const kicker = useTypewriter(`${SUBTITLE} · 수사 기록 열람`);
   const [modal, setModal] = useState<'settings' | 'gallery' | 'credits' | null>(null);
   const open = (m: 'settings' | 'gallery' | 'credits') => {
@@ -76,6 +76,7 @@ export function Title({ onSingle, onOnline }: { onSingle: () => void; onOnline: 
           </button>
         </div>
         <div className="title-actions">
+          <button className="file-tab" onClick={() => { audio.sfx('paper', 0.6); onShelf(); }}><Library size={15} /> 책장으로</button>
           <button className="file-tab" onClick={() => open('settings')}><SettingsIcon size={15} /> 설정</button>
           <button className="file-tab" onClick={() => open('gallery')}><Images size={15} /> 갤러리 & 다시보기</button>
           <button className="file-tab" onClick={() => open('credits')}><FileText size={15} /> 사건 기록실</button>

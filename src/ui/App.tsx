@@ -4,6 +4,7 @@ import { loadSingle, saveSingle } from '../client/saveGame';
 import { useOnline, type OnlineSession } from '../client/useOnline';
 import { applyAction, createSingleGame } from '../engine/engine';
 import type { Action, GameOptions, GameState, SeatId } from '../engine/types';
+import type { EpisodeProps } from '../hub/episodes';
 import { DEFAULT_PORT } from '../net/protocol';
 import { ART, shadedBg } from '../data/art';
 import { Atmosphere } from './Atmosphere';
@@ -22,7 +23,8 @@ type Screen =
   | { kind: 'online-setup' }
   | { kind: 'online'; target: JoinTarget; host?: HostInfo };
 
-export function App() {
+/** 에피소드 1 「공작소의 밤」의 루트 (src/hub/episodes.ts) */
+export function App({ onShelf }: EpisodeProps) {
   const [screen, setScreen] = useState<Screen>({ kind: 'title' });
   const toTitle = useCallback(() => setScreen({ kind: 'title' }), []);
 
@@ -30,7 +32,7 @@ export function App() {
     case 'title':
       return (
         <>
-          <Title onSingle={() => setScreen({ kind: 'single-setup' })} onOnline={() => setScreen({ kind: 'online-setup' })} />
+          <Title onSingle={() => setScreen({ kind: 'single-setup' })} onOnline={() => setScreen({ kind: 'online-setup' })} onShelf={onShelf} />
           <Atmosphere intensity={1} lightning />
           <MenuSound />
         </>

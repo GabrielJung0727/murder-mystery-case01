@@ -9,7 +9,7 @@ import '@fontsource/nanum-pen-script/400.css';
 import { audio } from './audio/director';
 import { display } from './client/display';
 import { protectContent } from './client/protect';
-import { App } from './ui/App';
+import { Hub } from './hub/Hub';
 import { ErrorBoundary } from './ui/ErrorBoundary';
 import { UpdateNotice } from './ui/UpdateNotice';
 import './ui/styles.css';
@@ -25,7 +25,7 @@ if (import.meta.env.DEV) (window as unknown as { __gongjaksoAudio: typeof audio 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ErrorBoundary>{(generation) => <App key={generation} />}</ErrorBoundary>
+    <ErrorBoundary>{(generation) => <Hub key={generation} />}</ErrorBoundary>
     <UpdateNotice />
   </StrictMode>,
 );
