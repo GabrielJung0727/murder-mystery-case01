@@ -28,7 +28,8 @@ def main():
     frames = [tight.resize((n, n), Image.LANCZOS) for n in SMALL] + [full.resize((n, n), Image.LANCZOS) for n in LARGE]
     os.makedirs(os.path.join(ROOT, 'build'), exist_ok=True)
     biggest = frames[-1]
-    biggest.save(os.path.join(ROOT, 'build', 'icon.ico'), format='ICO',
+    # bitmap_format='bmp': Pillow 기본값(PNG 압축)으로 저장하면 NSIS 설치 프로그램이 아이콘을 읽다가 충돌한다(0xC0000005)
+    biggest.save(os.path.join(ROOT, 'build', 'icon.ico'), format='ICO', bitmap_format='bmp',
                  sizes=[(f.width, f.height) for f in frames], append_images=frames[:-1])
     full.resize((512, 512), Image.LANCZOS).save(os.path.join(ROOT, 'build', 'icon.png'))
     full.resize((256, 256), Image.LANCZOS).save(os.path.join(ROOT, 'public', 'icon.png'))
