@@ -1,7 +1,7 @@
 import { BookOpen, DoorOpen, FileText, Flower2, Library, Settings as SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 import { audio } from '../../audio/director';
-import { bridge } from '../../client/bridge';
+import { APP_VERSION, bridge } from '../../client/bridge';
 import { Settings } from '../../ui/Settings';
 import { SETTING } from './data';
 import { Scene } from './Scene';
@@ -18,17 +18,23 @@ export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Pro
   const [settings, setSettings] = useState(false);
   const click = (f: () => void) => () => { audio.sfx('paper', 0.6); f(); };
   const menu = [
-    { label: '게임 시작', icon: <Flower2 size={22} />, on: onStart, primary: true },
-    { label: '이어하기', icon: <BookOpen size={22} />, on: onResume, disabled: !canResume },
-    { label: '프롤로그', icon: <FileText size={22} />, on: onPrologue },
-    { label: '설정', icon: <SettingsIcon size={22} />, on: () => setSettings(true) },
-    { label: '도서관으로', icon: <Library size={22} />, on: onShelf },
-    ...(bridge ? [{ label: '게임 종료', icon: <DoorOpen size={22} />, on: () => { if (window.confirm('게임을 종료할까요?')) void bridge?.quit(); } }] : []),
+    { label: '게임 시작', icon: <Flower2 size={20} />, on: onStart, primary: true },
+    { label: '이어하기', icon: <BookOpen size={20} />, on: onResume, disabled: !canResume },
+    { label: '프롤로그', icon: <FileText size={20} />, on: onPrologue },
+    { label: '설정', icon: <SettingsIcon size={20} />, on: () => setSettings(true) },
+    { label: '도서관으로', icon: <Library size={20} />, on: onShelf },
+    ...(bridge ? [{ label: '게임 종료', icon: <DoorOpen size={20} />, on: () => { if (window.confirm('게임을 종료할까요?')) void bridge?.quit(); } }] : []),
   ];
 
   return (
     <div className="cv cv-title-screen">
-      <Scene paper />
+      <Scene />
+      <svg className="cv-defs" aria-hidden>
+        <filter id="cv-rough">
+          <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" />
+          <feDisplacementMap in="SourceGraphic" scale="9" />
+        </filter>
+      </svg>
       <div className="cv-when">
         <span>{SETTING.date}</span>
         {SETTING.place.map((p) => <span key={p}>{p}</span>)}
@@ -46,6 +52,10 @@ export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Pro
           </button>
         ))}
       </nav>
+      <footer className="cv-foot">
+        <span>{SETTING.footer}</span>
+        <span>BUILD v{APP_VERSION} // {bridge ? 'STANDALONE .EXE' : 'WEB PREVIEW'}</span>
+      </footer>
       {settings && <Settings onClose={() => setSettings(false)} />}
     </div>
   );

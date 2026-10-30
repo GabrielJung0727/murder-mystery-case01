@@ -5,44 +5,30 @@
 .cv-kicker { font-family: var(--type); font-size: 11px; letter-spacing: .3em; color: var(--cv-amber); opacity: .85; }
 .cv-muted { color: var(--cv-muted); font-size: 13px; line-height: 1.7; }
 
-/* 배경 거리 */
+/* 배경: 비 내리는 경성 거리 그림 */
 .cv-scene { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.cv-defs { position: absolute; width: 0; height: 0; }
-.cv-sky { position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 50% 30% at 50% 58%, rgba(231, 165, 76, .22), transparent 70%),
-    radial-gradient(ellipse 70% 40% at 30% 10%, rgba(60, 60, 80, .35), transparent 70%),
-    linear-gradient(180deg, #0b0b12 0%, #141019 45%, #0d0909 100%); }
-.cv-city { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; }
-.cv-street { position: absolute; left: 0; right: 0; bottom: 0; height: 26%;
-  background:
-    repeating-linear-gradient(100deg, transparent 0 46%, rgba(255, 190, 110, .05) 46% 47%, transparent 47% 53%, rgba(255, 190, 110, .05) 53% 54%, transparent 54%),
-    linear-gradient(180deg, rgba(40, 24, 14, .2), rgba(231, 165, 76, .1) 30%, #060405 100%); }
+.cv-art { position: absolute; inset: 0; background: #07060a center 40% / cover no-repeat; }
 .cv-petals span { position: absolute; top: -20px; border-radius: 60% 10% 60% 10%; background: linear-gradient(135deg, #f6c7d3, #c9798c); opacity: .75;
   animation: cv-fall linear infinite; }
 @keyframes cv-fall { 0% { transform: translate(0, 0) rotate(0); } 100% { transform: translate(-120px, 110vh) rotate(540deg); } }
-.cv-paper { position: absolute; right: 3%; bottom: 6%; width: 300px; height: 210px; padding: 18px 20px; transform: rotate(-9deg);
-  background: linear-gradient(160deg, #e9dcc0, #c9b48e); box-shadow: 0 20px 40px rgba(0, 0, 0, .8); color: #2a2016; display: flex; flex-direction: column; gap: 10px;
-  filter: sepia(.3) brightness(.8); }
-.cv-paper b { font-family: 'Batang', var(--serif); font-size: 26px; font-weight: 800; letter-spacing: .04em; }
-.cv-paper span { height: 8px; background: repeating-linear-gradient(90deg, rgba(42, 32, 22, .45) 0 10px, transparent 10px 13px); }
-.cv-paper::after { content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 70% 40%, rgba(120, 8, 10, .75) 0 18px, transparent 19px), radial-gradient(circle at 40% 75%, rgba(120, 8, 10, .6) 0 8px, transparent 9px),
-    radial-gradient(circle at 82% 70%, rgba(120, 8, 10, .55) 0 5px, transparent 6px); filter: url(#cv-rough); }
-.cv-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(3, 2, 3, .92) 100%); }
-.cv-scene.dim::after { content: ''; position: absolute; inset: 0; background: rgba(5, 4, 6, .62); }
+.cv-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 55%, rgba(3, 2, 3, .75) 100%); }
+.cv-scene.dim::after { content: ''; position: absolute; inset: 0; background: rgba(5, 4, 6, .72); }
+.cv-defs { position: absolute; width: 0; height: 0; }
 
-/* 타이틀 */
-.cv-title-screen .cv-when { position: absolute; top: 7%; left: 4.5%; display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 1px solid rgba(236, 227, 211, .5);
-  font-size: 17px; letter-spacing: .04em; color: #d9cfbf; text-shadow: 0 2px 8px #000; }
-.cv-head { position: absolute; top: 11%; left: 0; right: 0; text-align: center; padding-left: 12%; }
-.cv-title { position: relative; display: inline-block; font-family: var(--cv-brush); font-weight: 400; font-size: clamp(56px, 8.4vw, 124px); line-height: 1; letter-spacing: .02em;
+/* 타이틀: 왼쪽 위 시대 자막, 위쪽 붓글씨 제목 */
+.cv-title-screen .cv-when { position: absolute; top: 6%; left: 4%; display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 2px solid #802424;
+  font-size: 17px; letter-spacing: .04em; color: #e2d8c8; text-shadow: 0 2px 8px #000, 0 0 2px #000; }
+.cv-head { position: absolute; top: 9%; left: 0; right: 0; text-align: center; }
+.cv-title { position: relative; display: inline-block; font-family: var(--cv-brush); font-weight: 400; font-size: clamp(56px, 8vw, 120px); line-height: 1; letter-spacing: .02em;
   color: #f1ebe2; text-shadow: 0 4px 22px rgba(0, 0, 0, .95), 0 0 2px rgba(0, 0, 0, .9); transform: rotate(-3deg); }
 .cv-title em { position: relative; font-style: normal; color: #e0222b; text-shadow: 0 0 1px #2a0204, 0 3px 0 #3a0306, 0 4px 22px rgba(0, 0, 0, .9); }
 .cv-splash { position: absolute; left: -20%; top: -30%; width: 140%; height: 160%; z-index: -1; opacity: .6; }
-.cv-act { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; font-size: 20px; letter-spacing: .14em; color: #e6dccb; text-shadow: 0 2px 8px #000; }
+.cv-act { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; font-size: 19px; letter-spacing: .14em; color: #e6dccb; text-shadow: 0 2px 8px #000, 0 0 2px #000; }
 .cv-act i { width: 80px; height: 1px; background: rgba(236, 227, 211, .7); }
-.cv-menu { position: absolute; left: 3.5%; top: 37%; display: flex; flex-direction: column; gap: 14px; z-index: 2; }
+.cv-foot { position: absolute; left: 32px; right: 32px; bottom: 14px; display: flex; justify-content: space-between; pointer-events: none;
+  font-family: var(--type); font-size: 10px; letter-spacing: .22em; color: #6a5d50; }
+.cv-menu { position: absolute; left: 3%; bottom: 8%; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+.cv-menu .cv-stroke { min-width: 230px; padding: 8px 22px; font-size: 16px; gap: 16px; }
 
 /* 붓 자국 버튼 */
 .cv-stroke { position: relative; display: inline-flex; align-items: center; gap: 22px; min-width: 300px; padding: 15px 30px; border: none; color: #e9e1d4;
@@ -144,10 +130,8 @@
 .cv-ending blockquote { margin: 0; padding: 14px 18px; border-left: 3px solid var(--cv-red); background: rgba(0, 0, 0, .3); font-size: 14px; line-height: 1.9; color: #d4c9b8; }
 
 @media (max-width: 900px) {
-  .cv-head { padding-left: 0; top: 16%; }
-  .cv-menu { top: auto; bottom: 4%; }
+  .cv-head { top: 18%; }
   .cv-stroke { min-width: 240px; font-size: 18px; padding: 12px 22px; }
-  .cv-paper { display: none; }
   .cv-trial-body { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -9,7 +9,7 @@ export const SETTING = {
   date: '1920년 12월 16일',
   place: ['대일본제국 산하', '조선, 경성'],
   act: '작업공작소 머더 프로젝트 2막',
-  headline: '朝鮮總督暗殺未遂',
+  footer: 'WORKSHOP GONGJAKSO // PROJECT ACT 2',
 };
 
 export const PROLOGUE = [
