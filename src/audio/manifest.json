@@ -1,0 +1,257 @@
+{
+  "music": {
+    "ost01_menu": {
+      "src": "audio/music/ost01_menu.mp3",
+      "title": "공작소의 밤",
+      "titleEn": "Night at the Workshop",
+      "source": "Midnight Motif - usesuno.com.mp3",
+      "duration": 163.621,
+      "loopStart": 0.6,
+      "loopEnd": 154.8,
+      "rmsDb": -18.3
+    },
+    "ost02_explore": {
+      "src": "audio/music/ost02_explore.mp3",
+      "title": "닫힌 공작소",
+      "titleEn": "The Locked Workshop",
+      "source": "Abandoned Workshop - usesuno.com.mp3",
+      "duration": 223.981,
+      "loopStart": 1.45,
+      "loopEnd": 214.35,
+      "rmsDb": -16.3
+    },
+    "ost03_investigate": {
+      "src": "audio/music/ost03_investigate.mp3",
+      "title": "기록되지 않은 진실",
+      "titleEn": "The Unwritten Truth",
+      "source": "The D Minor Motif - usesuno.com.mp3",
+      "duration": 187.621,
+      "loopStart": 0.65,
+      "loopEnd": 178.25,
+      "rmsDb": -16.5
+    },
+    "ost04_interrogate": {
+      "src": "audio/music/ost04_interrogate.mp3",
+      "title": "다섯 번째 의심",
+      "titleEn": "The Fifth Suspect",
+      "source": "Confession Room - usesuno.com.mp3",
+      "duration": 199.237,
+      "loopStart": 0.65,
+      "loopEnd": 189.8,
+      "rmsDb": -16.9
+    },
+    "ost06_accusation": {
+      "src": "audio/music/ost06_accusation.mp3",
+      "title": "마지막 지목",
+      "titleEn": "The Final Accusation",
+      "source": "The Accusation - usesuno.com.mp3",
+      "duration": 185.989,
+      "loopStart": 1.0,
+      "loopEnd": 176.75,
+      "rmsDb": -16.7
+    },
+    "ost07_ending": {
+      "src": "audio/music/ost07_ending.mp3",
+      "title": "비가 그친 뒤",
+      "titleEn": "After the Rain",
+      "source": "The Final Four Notes - usesuno.com.mp3",
+      "duration": 187.981,
+      "loopStart": 0.6,
+      "loopEnd": 178.4,
+      "rmsDb": -16.9
+    }
+  },
+  "rain": {
+    "src": "audio/ambience/rain_loop.ogg",
+    "duration": 26.1,
+    "rmsDb": -15.7
+  },
+  "clock": {
+    "src": "audio/ambience/clock_loop.ogg",
+    "duration": 28.0,
+    "tickPeriod": 1.0,
+    "ticks": 28,
+    "rmsDb": -26.8
+  },
+  "sfx": {
+    "paper": [
+      {
+        "src": "audio/sfx/paper_1.ogg",
+        "duration": 0.51,
+        "rmsDb": -18.4
+      },
+      {
+        "src": "audio/sfx/paper_2.ogg",
+        "duration": 0.75,
+        "rmsDb": -21.0
+      },
+      {
+        "src": "audio/sfx/paper_3.ogg",
+        "duration": 0.45,
+        "rmsDb": -18.7
+      },
+      {
+        "src": "audio/sfx/paper_4.ogg",
+        "duration": 0.38,
+        "rmsDb": -19.5
+      },
+      {
+        "src": "audio/sfx/paper_5.ogg",
+        "duration": 0.53,
+        "rmsDb": -22.3
+      },
+      {
+        "src": "audio/sfx/paper_6.ogg",
+        "duration": 0.4,
+        "rmsDb": -18.4
+      }
+    ],
+    "metal": [
+      {
+        "src": "audio/sfx/metal_1.ogg",
+        "duration": 4.19,
+        "rmsDb": -13.0
+      },
+      {
+        "src": "audio/sfx/metal_2.ogg",
+        "duration": 2.57,
+        "rmsDb": -11.4
+      },
+      {
+        "src": "audio/sfx/metal_3.ogg",
+        "duration": 6.33,
+        "rmsDb": -14.4
+      },
+      {
+        "src": "audio/sfx/metal_4.ogg",
+        "duration": 2.01,
+        "rmsDb": -17.4
+      }
+    ],
+    "truth": [
+      {
+        "src": "audio/sfx/truth_1.ogg",
+        "duration": 1.9,
+        "rmsDb": -13.6
+      },
+      {
+        "src": "audio/sfx/truth_2.ogg",
+        "duration": 2.36,
+        "rmsDb": -14.8
+      },
+      {
+        "src": "audio/sfx/truth_3.ogg",
+        "duration": 3.43,
+        "rmsDb": -14.8
+      },
+      {
+        "src": "audio/sfx/truth_4.ogg",
+        "duration": 2.52,
+        "rmsDb": -13.4
+      }
+    ]
+  },
+  "voice": {
+    "NAR-B01": {
+      "src": "audio/voice/NAR-B01.ogg",
+      "duration": 20.76,
+      "source": "DETECTIVE_BRIEF.mp3"
+    },
+    "NAR-B02": {
+      "src": "audio/voice/NAR-B02.ogg",
+      "duration": 25.99,
+      "source": "CASE_BRIEF.mp3"
+    },
+    "NAR-B03": {
+      "src": "audio/voice/NAR-B03.ogg",
+      "duration": 19.95,
+      "source": "ROOM_LAYOUT.mp3"
+    },
+    "NAR-B04": {
+      "src": "audio/voice/NAR-B04.ogg",
+      "duration": 31.68,
+      "source": "RULES.mp3"
+    },
+    "NAR-B05": {
+      "src": "audio/voice/NAR-B05.ogg",
+      "duration": 19.18,
+      "source": "심문_요령_목록.mp3"
+    },
+    "NAR-P01": {
+      "src": "audio/voice/NAR-P01.ogg",
+      "duration": 41.04,
+      "source": "OPENING_NARRATION.mp3"
+    },
+    "NAR-R1": {
+      "src": "audio/voice/NAR-R1.ogg",
+      "duration": 20.91,
+      "source": "ROUND_INFO[1].narration.mp3"
+    },
+    "NAR-R2": {
+      "src": "audio/voice/NAR-R2.ogg",
+      "duration": 16.79,
+      "source": "ROUND_INFO[2].narration.mp3"
+    },
+    "NAR-R3": {
+      "src": "audio/voice/NAR-R3.ogg",
+      "duration": 16.8,
+      "source": "ROUND_INFO[3].narration.mp3"
+    },
+    "NAR-D1": {
+      "src": "audio/voice/NAR-D1.ogg",
+      "duration": 13.15,
+      "source": "ROUND_OPENINGS[1].narration.mp3"
+    },
+    "NAR-D2": {
+      "src": "audio/voice/NAR-D2.ogg",
+      "duration": 14.72,
+      "source": "ROUND_OPENINGS[2].narration.mp3.mp3"
+    },
+    "NAR-D3": {
+      "src": "audio/voice/NAR-D3.ogg",
+      "duration": 13.32,
+      "source": "ROUND_OPENINGS[3].narration.mp3.mp3"
+    },
+    "NAR-F01": {
+      "src": "audio/voice/NAR-F01.ogg",
+      "duration": 8.89,
+      "source": "advance.mp3"
+    },
+    "NAR-S01": {
+      "src": "audio/voice/NAR-S01.ogg",
+      "duration": 4.71,
+      "source": "npcReact_solved.mp3"
+    },
+    "NAR-E-A": {
+      "src": "audio/voice/NAR-E-A.ogg",
+      "duration": 24.98,
+      "source": "ENDINGS[E-A].mp3"
+    },
+    "NAR-E-B": {
+      "src": "audio/voice/NAR-E-B.ogg",
+      "duration": 19.5,
+      "source": "ENDINGS[E-B].mp3"
+    },
+    "NAR-E-C": {
+      "src": "audio/voice/NAR-E-C.ogg",
+      "duration": 23.18,
+      "source": "ENDINGS[E-C].mp3"
+    },
+    "NAR-E-D": {
+      "src": "audio/voice/NAR-E-D.ogg",
+      "duration": 14.74,
+      "source": "ENDINGS[E-D].mp3"
+    },
+    "NAR-T01": {
+      "src": "audio/voice/NAR-T01.ogg",
+      "duration": 15.08,
+      "source": "TRUTH_SUMMARY.mp3"
+    },
+    "NAR-T02": {
+      "src": "audio/voice/NAR-T02.ogg",
+      "duration": 27.57,
+      "source": "AFTERWORD.mp3"
+    }
+  },
+  "blip": {}
+}
