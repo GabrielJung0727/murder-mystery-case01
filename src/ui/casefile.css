@@ -321,3 +321,8 @@
 .error-detail { margin: 10px 0 14px; font-size: 12px; }
 .error-detail summary { cursor: pointer; color: #a08a64; }
 .error-detail pre { max-height: 180px; overflow: auto; white-space: pre-wrap; font-size: 11px; background: rgba(0, 0, 0, .35); padding: 8px; border-radius: 4px; color: #d8cbb0; -webkit-user-select: text; user-select: text; }
+
+/* 자동 업데이트 안내 */
+.update-note { position: fixed; right: 18px; bottom: 18px; z-index: 300; max-width: 320px; padding: 10px 14px; border: 1px solid #6b5638; border-radius: 6px; background: rgba(20, 16, 11, .96); color: #efe6d6; font-size: 12.5px; box-shadow: 0 10px 30px rgba(0, 0, 0, .7); }
+.update-note.ready { border-color: #a8262b; }
+.update-note .kicker-type { font-size: 10px; margin-bottom: 3px; }

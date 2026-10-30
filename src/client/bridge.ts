@@ -5,6 +5,11 @@ export interface HostInfo {
   addresses: string[];
 }
 
+/** electron/updater.ts 가 보내는 업데이트 상태 */
+export type UpdateStatus =
+  | { state: 'downloading'; version: string; percent: number }
+  | { state: 'ready'; version: string };
+
 interface Bridge {
   isElectron: true;
   hostStart(port: number): Promise<HostInfo>;
@@ -12,6 +17,8 @@ interface Bridge {
   setFullscreen(on: boolean): Promise<void>;
   setZoom(factor: number): Promise<void>;
   quit(): Promise<void>;
+  onUpdate(fn: (status: UpdateStatus) => void): () => void;
+  installUpdate(): Promise<void>;
 }
 
 export const bridge: Bridge | undefined = typeof window === 'undefined' ? undefined : (window as unknown as { gongjakso?: Bridge }).gongjakso;

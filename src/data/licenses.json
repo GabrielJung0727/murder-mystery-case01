@@ -30,6 +30,12 @@
     "note": "실행 환경. Chromium 등 내장 구성 요소의 고지는 배포 폴더의 LICENSES.chromium.html 에 있습니다."
   },
   {
+    "name": "electron-updater",
+    "version": "6.3.9",
+    "license": "MIT",
+    "note": ""
+  },
+  {
     "name": "lucide-react",
     "version": "0.460.0",
     "license": "ISC",

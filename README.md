@@ -8,7 +8,8 @@ Electron + React + TypeScript로 만들었고, 싱글 플레이와 5인 온라�
 ```bash
 npm install
 npm run dev        # Electron 개발 실행 (Vite + Electron)
-npm run dist       # release/GongjaksoNight-<버전>.exe (포터블 단일 실행 파일)
+npm run dist       # release/GongjaksoNight-Setup-<버전>.exe (설치형) + latest.yml (자동 업데이트용)
+npm run e2e:online # 실제 호스트 서버로 5인 온라인 한 판을 끝까지 돌리는 통합 테스트
 npm test           # 엔진·서버 테스트
 ```
 
@@ -109,3 +110,12 @@ electron      메인 프로세스 (호스트 서버 시작·중지), preload
 - 내장 음성 채팅(WebRTC)은 아직 없습니다.
 - 카드 원문은 클라이언트에 포함되어 있습니다. 손패 은폐는 UI 규칙으로 지키며, 악의적인 개발자 도구 조작까지 막지는 않습니다.
 - 환경음, 결과 화면 모션 그래픽 같은 연출 폴리싱은 기본 수준입니다.
+
+## 배포와 자동 업데이트
+
+- 설치형(NSIS): 설치 폴더 선택, 바탕화면·시작 메뉴 바로가기, 제거 기능. 제거해도 저장 기록(`%APPDATA%\공작소의 밤`)은 남는다.
+- 자동 업데이트(electron-updater): 실행 4초 뒤 GitHub 최신 릴리스를 확인해 뒤에서 받고, 화면 구석 [지금 재시작] 또는 게임 종료 때 설치한다.
+  확인 기록은 `%APPDATA%\공작소의 밤\update.log`.
+- 새 버전 내는 법: `package.json` 버전을 올리고 `npm run dist` → GitHub 릴리스에 **`Setup-<버전>.exe`, `.blockmap`, `latest.yml` 세 파일을 모두** 올린다.
+  `latest.yml`이 없으면 기존 사용자에게 업데이트가 뜨지 않는다.
+- 업데이트 동작 시험: 로컬에서 새 버전 파일 세 개를 http로 띄우고 `GONGJAKSO_UPDATE_URL=http://127.0.0.1:포트/` 환경 변수로 설치된 게임을 실행한다.

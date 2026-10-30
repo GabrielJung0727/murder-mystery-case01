@@ -11,6 +11,7 @@ import { display } from './client/display';
 import { protectContent } from './client/protect';
 import { App } from './ui/App';
 import { ErrorBoundary } from './ui/ErrorBoundary';
+import { UpdateNotice } from './ui/UpdateNotice';
 import './ui/styles.css';
 import './ui/casefile.css';
 import './ui/casefolder.css';
@@ -25,5 +26,6 @@ if (import.meta.env.DEV) (window as unknown as { __gongjaksoAudio: typeof audio 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>{(generation) => <App key={generation} />}</ErrorBoundary>
+    <UpdateNotice />
   </StrictMode>,
 );
