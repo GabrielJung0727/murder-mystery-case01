@@ -316,3 +316,8 @@
   .suspect .avatar { width: 24px; height: 24px; }
   .log { min-height: 64px; }
 }
+
+/* 오류 복구 화면 */
+.error-detail { margin: 10px 0 14px; font-size: 12px; }
+.error-detail summary { cursor: pointer; color: #a08a64; }
+.error-detail pre { max-height: 180px; overflow: auto; white-space: pre-wrap; font-size: 11px; background: rgba(0, 0, 0, .35); padding: 8px; border-radius: 4px; color: #d8cbb0; -webkit-user-select: text; user-select: text; }

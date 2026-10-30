@@ -21,5 +21,6 @@ describe('single save', () => {
     expect(parseSave(wrap({ player: 'seongcheol', state: { ...state, phase: 'ending' } }))).toBeNull();
     expect(parseSave(wrap({ player: 'seongcheol', state: createOnlineGame() }))).toBeNull();
     expect(parseSave(wrap({ player: 'detective', state }))).toBeNull(); // 수사관 자리가 없는 판
+    expect(parseSave(wrap({ player: 'seongcheol', state: { ...state, cards: undefined } }))).toBeNull(); // 깨진 상태
   });
 });

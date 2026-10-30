@@ -34,6 +34,10 @@
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
+/* 글자 선택·이미지 끌기 금지 (입력칸 제외) — src/client/protect.ts 와 함께 */
+body { -webkit-user-select: none; user-select: none; }
+img { -webkit-user-drag: none; }
+input, textarea, select, [contenteditable="true"], [data-selectable] { -webkit-user-select: text; user-select: text; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.55; overflow: hidden; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.45; }

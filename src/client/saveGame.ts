@@ -19,7 +19,7 @@ export function parseSave(raw: string | null): SingleSave | null {
     const save = JSON.parse(raw) as Partial<SingleSave>;
     if (save.schema !== SCHEMA || !save.player || !save.state || typeof save.savedAt !== 'number') return null;
     const { state } = save;
-    if (state.mode !== 'single' || state.phase === 'ending' || !Array.isArray(state.seats)) return null;
+    if (state.mode !== 'single' || state.phase === 'ending' || !Array.isArray(state.seats) || !state.cards || !Array.isArray(state.log)) return null;
     if (!state.seats.some((s) => s.id === save.player && s.kind === 'human')) return null;
     return save as SingleSave;
   } catch {
