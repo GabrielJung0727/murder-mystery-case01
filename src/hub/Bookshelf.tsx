@@ -84,7 +84,29 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
     >
       <div className="hub-bg" aria-hidden>
         <div className="hub-stacks" />
+        <svg className="hub-hall" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="hub-pillar" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#080504" />
+              <stop offset="50%" stopColor="#261810" />
+              <stop offset="100%" stopColor="#080504" />
+            </linearGradient>
+            <radialGradient id="hub-arch-glow" cx="50%" cy="20%" r="60%">
+              <stop offset="0%" stopColor="rgba(229, 169, 60, 0.28)" />
+              <stop offset="50%" stopColor="rgba(140, 65, 20, 0.08)" />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
+          </defs>
+          <rect width="1920" height="1080" fill="url(#hub-arch-glow)" />
+          <rect x="0" width="170" height="1080" fill="url(#hub-pillar)" />
+          <rect x="1750" width="170" height="1080" fill="url(#hub-pillar)" />
+          <rect x="165" width="6" height="1080" fill="#5c3d24" opacity="0.4" />
+          <rect x="1749" width="6" height="1080" fill="#5c3d24" opacity="0.4" />
+          <path d="M0,0 L1920,0 L1920,260 Q960,80 0,260 Z" fill="#090605" stroke="#4a321f" strokeWidth="3" />
+          <path d="M140,0 L1780,0 L1780,210 Q960,55 140,210 Z" fill="none" stroke="#855c38" strokeWidth="1.5" strokeDasharray="8 6" opacity="0.45" />
+        </svg>
         <div className="hub-ray" />
+        <div className="hub-floor" />
         {effects && <div className="hub-dust">{Array.from({ length: 14 }, (_, i) => <span key={i} />)}</div>}
         <div className="hub-vignette" />
       </div>
@@ -98,10 +120,10 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
 
         <div className="stage">
           <div className="case">
+            <div className="case-crown" />
             <div className="case-back" />
             <div className="case-side l" />
             <div className="case-side r" />
-            <div className="case-top" />
             <div className="case-floor" />
             <div className="case-row">
               {SLOTS.map((s, i) => {
@@ -125,12 +147,15 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
                       <span className="spine-genre">{s.sealed ? <Lock size={12} /> : s.genre}</span>
                       {state === 'soon' && <span className="spine-band">집필 중</span>}
                     </span>
+                    {/* 표지 글씨는 꺼낸 책에만 그린다 (꽂힌 책은 틈새로 글씨가 비치지 않게) */}
                     <span className="b-cover" aria-hidden>
-                      <span className="b-cover-in">
-                        <small>EP.{epNo(s.no)} ARCHIVE</small>
-                        <b>{s.title}</b>
-                        <small>GONGJAKSO</small>
-                      </span>
+                      {i === sel && (
+                        <span className="b-cover-in">
+                          <small>EP.{epNo(s.no)} ARCHIVE</small>
+                          <b>{s.title}</b>
+                          <small>GONGJAKSO</small>
+                        </span>
+                      )}
                     </span>
                     <span className="b-pages" aria-hidden />
                   </button>
