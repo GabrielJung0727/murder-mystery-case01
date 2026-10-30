@@ -3,7 +3,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { audio, type VoiceId } from '../audio/director';
 import { VoiceButton } from './VolumeControl';
 import { progress } from '../client/progress';
-import { ZONE_ART } from '../data/art';
+import { EVIDENCE_PHOTO, ZONE_ART } from '../data/art';
 import { CARD_BY_ID, CARDS } from '../data/cards';
 import { CHARACTERS } from '../data/characters';
 import { PHONE } from '../data/phone';
@@ -35,7 +35,7 @@ function CardDetail({ id, notes, onBack }: { id: CardId; notes: boolean; onBack:
           {scene
             ? <img src={scene.src} alt={c.title} style={{ display: 'block', width: '100%' }} />
             : phone?.app === 'gallery' ? <GalleryThumb scene={phone.scene} />
-            : <img src={ZONE_ART[c.zone]} alt={c.location} style={{ display: 'block', width: '100%' }} />}
+            : <img src={EVIDENCE_PHOTO[id] ?? ZONE_ART[c.zone]} alt={c.location} style={{ display: 'block', width: '100%' }} />}
         </div>
         <div className="card-sheet grow">
           <div className="meta">증거 {c.id} / ROUND {c.round} / {c.location}</div>

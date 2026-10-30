@@ -26,6 +26,20 @@ export const ZONE_ART: Record<ZoneId, string> = {
   yard: 'art/room-veranda.webp',
 };
 
+/**
+ * 주요 증거의 클로즈업 사진 (scripts/prepare_clues.py → public/clues). 카드 상단에 방 그림 대신 쓴다.
+ * 돋보기 카드(02·14·31·34)는 단서가 미리 보이지 않도록 방 그림을 유지한다.
+ */
+export const EVIDENCE_PHOTO: Partial<Record<string, string>> = {
+  '01': 'clues/evidence-01.webp',
+  '04': 'clues/evidence-04.webp',
+  '06': 'clues/evidence-06.webp',
+  '15': 'clues/evidence-15.webp',
+  '21': 'clues/evidence-21.webp',
+  '23': 'clues/evidence-23.webp',
+  '35': 'clues/evidence-35.webp',
+};
+
 /** 어두운 그라데이션을 얹은 배경 이미지 스타일 (상대 경로라 file:// 에서도 동작) */
 export function shadedBg(src: string, top = 0.55, bottom = 0.88): React.CSSProperties {
   return {

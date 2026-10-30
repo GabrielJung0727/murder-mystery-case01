@@ -286,6 +286,7 @@
 
 /* ---------- 실내 일러스트 ---------- */
 .room-banner { position: relative; height: 170px; border-radius: 6px; overflow: hidden; background-size: cover; background-position: center; box-shadow: inset 0 0 60px rgba(0, 0, 0, .7); }
+.room-banner.evidence { height: 230px; filter: contrast(1.05) saturate(.9); }
 .room-banner span { position: absolute; left: 14px; bottom: 10px; font-family: var(--type); font-size: 12px; letter-spacing: .2em; color: #efe6d6; text-shadow: 0 1px 4px #000; }
 .interro-main.with-art { background-size: cover; background-position: center; }
 

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { CARD_BY_ID } from '../data/cards';
-import { ZONE_ART } from '../data/art';
+import { EVIDENCE_PHOTO, ZONE_ART } from '../data/art';
 import { josa } from '../data/josa';
 import type { CardId } from '../data/types';
 import { canSee } from '../engine/engine';
@@ -75,7 +75,9 @@ export function CardModal({ card, state, you, dispatch, onPresent, onClose }: {
             ? <Inspector card={card} found={found} onFound={() => you && dispatch({ type: 'inspect', seat: you, card })} />
             : (
               <>
-              <div className="room-banner" style={{ backgroundImage: `url(${ZONE_ART[c.zone]})` }}><span>{c.location}</span></div>
+              <div className={`room-banner ${EVIDENCE_PHOTO[card] ? 'evidence' : ''}`} style={{ backgroundImage: `url(${EVIDENCE_PHOTO[card] ?? ZONE_ART[c.zone]})` }}>
+                <span>{EVIDENCE_PHOTO[card] ? `EVIDENCE ${c.id} · ${c.location}` : c.location}</span>
+              </div>
               <div className="card-sheet">
                 <div className="meta">증거 {c.id} / ROUND {c.round} / {c.location}</div>
                 <h3>{c.title}</h3>
