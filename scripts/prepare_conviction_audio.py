@@ -106,7 +106,7 @@ def make_music(tid, path):
     start, end = content_bounds(x, -45)
     loop = tid in LOOPING
     rel = f'{REL}/music/{tid}.ogg'
-    write_ogg(x, os.path.join(OUT, 'music', f'{tid}.ogg'), quality=5)
+    write_ogg(x, os.path.join(OUT, 'music', f'{tid}.ogg'), quality=4)  # 약 128kbps: 게임 배경음으로 충분하고 설치 파일을 줄인다
     return {
         'src': rel, 'source': os.path.basename(path), 'duration': round(len(x) / SR, 3), 'loop': loop,
         # 루프 구간: 시작 무음 뒤 ~ 마지막 음이 잦아들기 전

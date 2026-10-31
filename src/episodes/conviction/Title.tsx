@@ -28,7 +28,7 @@ export function Title({ canResume, onStart, onResume, onPrologue, onRecords, onS
     rain(0.5);
     if (!titleRead) {
       titleRead = true;
-      say(['CV-NAR-T00'], 1.2);
+      say(['CV-NAR-T00', 'CV-NAR-T01'], 1.2);
     }
   }, []);
   const menu = [

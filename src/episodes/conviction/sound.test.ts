@@ -23,6 +23,12 @@ describe('EP.02 audio manifest', () => {
     for (const id of Object.values(ROLE_INTRO)) expect(LINES[id]).toBeDefined();
   });
 
+  it('shows the Japanese original for every judge and prosecutor line', () => {
+    for (const [id, line] of Object.entries(LINES)) {
+      if (line.who === 'judge' || line.who === 'prosecutor') expect(line.orig, id).toMatch(/[぀-ヿ一-鿿]/);
+    }
+  });
+
   it('has the one-shot sounds the trial uses', () => {
     for (const id of ['CV-SFX-GAVEL', 'CV-SFX-STAMP', 'CV-SFX-GUNSHOT']) expect(manifest.sfx[id as keyof typeof manifest.sfx].length).toBeGreaterThan(0);
     expect(manifest.loops['CV-SFX-RAIN'].duration).toBeGreaterThan(10);
@@ -79,7 +85,7 @@ describe('ending sound', () => {
   it('reads the verdict for the guilty suspect first, then each ending its own way', () => {
     for (const x of SUSPECTS) {
       const steps = endingSteps(x, x === 'kim' ? 'E2' : x === 'yun' ? 'E3' : 'E6');
-      expect(steps[0]).toEqual({ say: [`CV-HASEDA-V-${x.toUpperCase()}`, 'CV-HASEDA-VJ', 'CV-HASEDA-06'] });
+      expect(steps[0]).toEqual({ say: [`CV-HASEDA-V-${x.toUpperCase()}`, 'CV-HASEDA-06'] });
     }
     expect(endingSteps('kim', 'E2')).toContainEqual({ say: ['CV-KIM-08'] });
     expect(endingSteps('kim', 'E2').findIndex((s) => 'sfx' in s && s.sfx === 'CV-SFX-BOMB'))

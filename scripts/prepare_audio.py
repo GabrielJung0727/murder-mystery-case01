@@ -4,7 +4,7 @@
   python scripts/prepare_audio.py <원본 폴더>
   python scripts/prepare_audio.py --voice <새 나레이션 폴더>   (나레이션만 추가)
 
-- 음악(Suno mp3): 커버 이미지를 떼고 오디오만 복사. 앞뒤 무음을 재서 루프 구간을 manifest에 기록.
+- 음악(Suno mp3): 커버 이미지를 떼고 ogg(vorbis q4, 약 128kbps)로 다시 담는다. 앞뒤 무음을 재서 루프 구간을 manifest에 기록.
 - RAIN-01: 앞 무음을 잘라내고 3초 크로스페이드로 이음새 없는 루프 생성.
 - CLOCK-01: 초침 위치를 찾아 정수 개의 똑딱 단위로 잘라 루프 생성.
 - 나레이션: 녹음 파일명(원문 상수 이름)으로 대본 ID를 찾아 음량을 맞추고 모노 ogg로 저장.
@@ -175,10 +175,11 @@ def make_music(src):
     tracks = {}
     for tid, (prefix, ko, en) in MUSIC.items():
         path = find(src, prefix)
-        rel = f'audio/music/{tid}.mp3'
-        dst = os.path.join(OUT, 'music', f'{tid}.mp3')
+        rel = f'audio/music/{tid}.ogg'
+        dst = os.path.join(OUT, 'music', f'{tid}.ogg')
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        subprocess.run([FF, '-v', 'error', '-y', '-i', path, '-map', '0:a', '-c:a', 'copy', '-map_metadata', '-1', dst], check=True)
+        # 설치 파일을 줄이려 192kbps mp3 를 vorbis q4 로 담는다 (배경음으로 충분한 음질)
+        subprocess.run([FF, '-v', 'error', '-y', '-i', path, '-map', '0:a', '-c:a', 'libvorbis', '-q:a', '4', '-map_metadata', '-1', dst], check=True)
         x = decode(dst)
         start, end = content_bounds(x, -45)
         tracks[tid] = {

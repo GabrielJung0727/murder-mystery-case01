@@ -1,7 +1,7 @@
 {
   "name": "gongjakso-night",
   "productName": "공작소 도서관",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "MURDER MYSTERY CASE 01 - 공작소의 밤 (PC 2D 추리 게임)",
   "main": "dist-electron/main.js",
   "private": true,
@@ -10,7 +10,7 @@
     "dev:web": "vite",
     "server": "esbuild scripts/server.ts --bundle --platform=node --format=cjs --outfile=dist-server/server.cjs && node dist-server/server.cjs",
     "blip-script": "esbuild scripts/gen_blip_script.ts --bundle --platform=node --format=esm --outfile=dist-server/gen_blip.mjs && node dist-server/gen_blip.mjs",
-    "build:main": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --format=cjs --outdir=dist-electron --external:electron --external:electron-updater",
+    "build:main": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --format=cjs --outdir=dist-electron --external:electron",
     "build": "npm run licenses && tsc --noEmit && vite build && npm run build:main",
     "dist": "npm run build && electron-builder --win nsis --publish never",
     "test": "vitest run",
@@ -59,8 +59,14 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*"
     ],
+    "electronLanguages": [
+      "ko",
+      "en-US"
+    ],
+    "compression": "maximum",
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico",

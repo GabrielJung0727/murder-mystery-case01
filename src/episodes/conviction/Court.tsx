@@ -1,10 +1,12 @@
 // 가운데 경성 재판장: 위에 법대(재판관·검사), 아래 피고인석 세 자리.
 // 단계마다 피고인석의 버튼이 바뀐다: 증거 받기 → 묵비권·강력 용의자 지명 → 구형 → 판결.
 import { Gavel, MessageCircle, Scale, Shield, Swords, VolumeX } from 'lucide-react';
+import { useSyncExternalStore } from 'react';
 import { audio } from '../../audio/director';
 import { RULES, SUSPECTS, portrait, roleOf, type RoleId, type SuspectId } from './data';
 import { ASSETS, roomFor } from './assets';
 import { pickBlocked, type Phase, type TrialAction, type TrialState } from './engine';
+import { LINES } from './sound';
 
 const CAPTION: Record<Exclude<Phase, 'ending'>, { title: string; text: string }> = {
   evidence: { title: '증거 배분', text: '피고인석의 버튼으로 증거를 받습니다.' },
@@ -20,12 +22,13 @@ export function Court({ s, act }: { s: TrialState; act: (a: TrialAction) => void
   const room = roomFor(s.phase, s.player === 'judge' || s.player === 'prosecutor');
   const round = s.phase === 'evidence' || s.phase === 'secret' || s.phase === 'trial' ? `제${s.round}라운드` : '최종 재판';
   const hint = boardHint(s);
+  const voicing = useVoicing();
   return (
     <div className={`cv-room phase-${s.phase} ${room ? 'pictured' : ''}`} style={room ? { backgroundImage: `linear-gradient(rgba(12, 7, 4, .45), rgba(12, 7, 4, .8)), url(${room})` } : undefined}>
       <div className="cv-bench">
         <div className="cv-bench-emblem" aria-hidden><Scale size={16} /></div>
-        <Officer id="prosecutor" label="檢事" s={s} />
-        <Officer id="judge" label="裁判長" s={s} high />
+        <Officer id="prosecutor" label="檢事" s={s} voicing={voicing === 'prosecutor'} />
+        <Officer id="judge" label="裁判長" s={s} high voicing={voicing === 'judge'} />
       </div>
       {/* 법대와 피고인석 사이: 지금 단계와 내가 할 일을 알리는 공판 상황판 */}
       <div className="cv-floor">
@@ -42,10 +45,16 @@ export function Court({ s, act }: { s: TrialState; act: (a: TrialAction) => void
         </div>
       </div>
       <div className="cv-dock">
-        {SUSPECTS.map((x, i) => <Seat key={x} who={x} no={i} s={s} act={act} />)}
+        {SUSPECTS.map((x, i) => <Seat key={x} who={x} no={i} s={s} act={act} voicing={voicing === x} />)}
       </div>
     </div>
   );
+}
+
+/** 지금 목소리가 나오고 있는 인물 (인물 대사일 때만, 나레이션이면 null) */
+function useVoicing(): RoleId | null {
+  const voice = useSyncExternalStore(audio.subscribe, () => audio.getNowPlaying().voice);
+  return voice ? LINES[voice]?.who ?? null : null;
 }
 
 /** 비밀 대화 채널: 법관석(검사·재판관) 또는 피고인석(피고인 셋). 플레이어가 앉은 쪽 */
@@ -123,12 +132,12 @@ function canAct(s: TrialState, who: SuspectId): boolean {
   return s.phase === 'verdict' && me === 'judge';
 }
 
-function Officer({ id, label, s, high }: { id: 'judge' | 'prosecutor'; label: string; s: TrialState; high?: boolean }) {
+function Officer({ id, label, s, high, voicing }: { id: 'judge' | 'prosecutor'; label: string; s: TrialState; high?: boolean; voicing: boolean }) {
   const r = roleOf(id);
   const speaking = (id === 'judge' && s.phase === 'verdict') || (id === 'prosecutor' && (s.phase === 'sentence' || s.phase === 'final-qa'));
   return (
-    <div className={`cv-officer ${high ? 'high' : ''} ${speaking ? 'speaking' : ''} ${s.player === id ? 'me' : ''} ${talkClass(s, id)}`}>
-      <img src={portrait(id)} alt="" />
+    <div className={`cv-officer ${high ? 'high' : ''} ${speaking ? 'speaking' : ''} ${s.player === id ? 'me' : ''} ${talkClass(s, id)} ${voicing ? 'voicing' : ''}`}>
+      <span className="cv-voice-frame"><img src={portrait(id)} alt="" />{voicing && <VoiceBadge />}</span>
       {talkClass(s, id) === 'talking' && <span className="cv-talk"><MessageCircle size={11} /> 밀담 중</span>}
       <span className="cv-plate"><small>{label}</small>{r.name}{s.player === id && <em>나</em>}</span>
     </div>
@@ -137,7 +146,7 @@ function Officer({ id, label, s, high }: { id: 'judge' | 'prosecutor'; label: st
 
 const SEAT_NO = ['壹', '貳', '參'];
 
-function Seat({ who, no, s, act }: { who: SuspectId; no: number; s: TrialState; act: (a: TrialAction) => void }) {
+function Seat({ who, no, s, act, voicing }: { who: SuspectId; no: number; s: TrialState; act: (a: TrialAction) => void; voicing: boolean }) {
   const r = roleOf(who);
   const me = s.player === who;
   const strongRounds = s.strong.map((x, i) => (x === who ? i + 1 : 0)).filter(Boolean);
@@ -148,7 +157,7 @@ function Seat({ who, no, s, act }: { who: SuspectId; no: number; s: TrialState; 
   const targeted = s.phase === 'evidence' && s.targets[s.player] === who;
 
   return (
-    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''} ${canAct(s, who) ? 'cta' : ''} ${targeted ? 'targeted' : ''} ${talkClass(s, who)}`}>
+    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''} ${canAct(s, who) ? 'cta' : ''} ${targeted ? 'targeted' : ''} ${talkClass(s, who)} ${voicing ? 'voicing' : ''}`}>
       <div className="cv-seat-tag">
         <span>被告人 {SEAT_NO[no]}</span>
         {targeted && <em>지목</em>}
@@ -162,6 +171,7 @@ function Seat({ who, no, s, act }: { who: SuspectId; no: number; s: TrialState; 
       <div className="cv-seat-main">
         <div className="cv-seat-face">
           <img src={portrait(who)} alt="" />
+          {voicing && <VoiceBadge />}
           {silentNow && <span className="cv-silent"><VolumeX size={12} /> 묵비권</span>}
           {strongNow && <Stamp kind="strong" />}
           {showPlea && <Stamp kind={plea === 'guilty' ? 'guilty' : 'innocent'} key={plea} />}
@@ -229,6 +239,15 @@ function SeatActions({ who, s, act }: { who: SuspectId; s: TrialState; act: (a: 
     );
   }
   return null;
+}
+
+/** 말하는 중 표시: 초상화 모서리의 작은 파형 */
+function VoiceBadge() {
+  return (
+    <span className="cv-voice-badge" aria-label="말하는 중">
+      {[0, 1, 2].map((i) => <i key={i} style={{ animationDelay: `${i * -0.2}s` }} />)}
+    </span>
+  );
 }
 
 /** 붉은 인장. 그림이 오면 그림을, 없으면 글자 도장을 찍는다 */

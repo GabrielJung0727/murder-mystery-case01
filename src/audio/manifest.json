@@ -1,7 +1,7 @@
 {
   "music": {
     "ost01_menu": {
-      "src": "audio/music/ost01_menu.mp3",
+      "src": "audio/music/ost01_menu.ogg",
       "title": "공작소의 밤",
       "titleEn": "Night at the Workshop",
       "source": "Midnight Motif - usesuno.com.mp3",
@@ -11,7 +11,7 @@
       "rmsDb": -18.3
     },
     "ost02_explore": {
-      "src": "audio/music/ost02_explore.mp3",
+      "src": "audio/music/ost02_explore.ogg",
       "title": "닫힌 공작소",
       "titleEn": "The Locked Workshop",
       "source": "Abandoned Workshop - usesuno.com.mp3",
@@ -21,7 +21,7 @@
       "rmsDb": -16.3
     },
     "ost03_investigate": {
-      "src": "audio/music/ost03_investigate.mp3",
+      "src": "audio/music/ost03_investigate.ogg",
       "title": "기록되지 않은 진실",
       "titleEn": "The Unwritten Truth",
       "source": "The D Minor Motif - usesuno.com.mp3",
@@ -31,7 +31,7 @@
       "rmsDb": -16.5
     },
     "ost04_interrogate": {
-      "src": "audio/music/ost04_interrogate.mp3",
+      "src": "audio/music/ost04_interrogate.ogg",
       "title": "다섯 번째 의심",
       "titleEn": "The Fifth Suspect",
       "source": "Confession Room - usesuno.com.mp3",
@@ -41,7 +41,7 @@
       "rmsDb": -16.9
     },
     "ost06_accusation": {
-      "src": "audio/music/ost06_accusation.mp3",
+      "src": "audio/music/ost06_accusation.ogg",
       "title": "마지막 지목",
       "titleEn": "The Final Accusation",
       "source": "The Accusation - usesuno.com.mp3",
@@ -51,7 +51,7 @@
       "rmsDb": -16.7
     },
     "ost07_ending": {
-      "src": "audio/music/ost07_ending.mp3",
+      "src": "audio/music/ost07_ending.ogg",
       "title": "비가 그친 뒤",
       "titleEn": "After the Rain",
       "source": "The Final Four Notes - usesuno.com.mp3",

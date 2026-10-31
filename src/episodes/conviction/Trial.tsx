@@ -51,8 +51,11 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
 /** 단계마다 곡을 바꾸고, 상태가 바뀔 때마다 대사와 효과음을 울린다 (엔딩 소리는 EndingView 가 맡는다) */
 function useTrialSound(s: TrialState) {
   const prev = useRef<TrialState | null>(null);
-  // 타이틀로 나가면 읽던 대사를 멈춘다
-  useEffect(() => () => audio.stopNarration(), []);
+  // 타이틀로 나가면 읽던 대사를 멈춘다. 다시 들어오면(개발 모드의 이중 실행 포함) 처음 들어온 것으로 다시 판단한다
+  useEffect(() => () => {
+    audio.stopNarration();
+    prev.current = null;
+  }, []);
   useEffect(() => {
     if (s.phase !== 'ending') {
       music(phaseTrack(s.phase), prev.current ? 2.5 : 3);
