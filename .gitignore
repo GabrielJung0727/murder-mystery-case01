@@ -3,3 +3,7 @@ dist/
 dist-electron/
 release/
 dist-server/
+
+# EP.02 원본 기획 문서 (작성자 보관용, 공개 저장소에 올리지 않음)
+src/episodes/conviction/docs/*.pdf
+src/episodes/conviction/docs/*.png

@@ -1,7 +1,8 @@
 import { ArrowLeft, Gavel, Scale, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
-import { PROLOGUE, ROLES, SETTING, type RoleId } from './data';
+import { PROLOGUE, ROLES, SETTING, portrait, type RoleId } from './data';
+import { Dossier } from './Dossier';
 import { Scene } from './Scene';
 
 /** 프롤로그: 한 줄씩 넘긴다 (클릭·Enter·Space) */
@@ -20,8 +21,9 @@ export function Prologue({ onDone }: { onDone: () => void }) {
     <div className="cv cv-prologue" onClick={next}>
       <Scene dim />
       <div className="cv-prologue-text">
-        <span className="cv-kicker">PROLOGUE · {SETTING.date}</span>
-        {PROLOGUE.slice(0, n).map((line) => <p key={line}>{line}</p>)}
+        <span className="cv-kicker">{SETTING.caseNo} · 사건 개요 · {SETTING.date}</span>
+        {/* 화면에는 최근 네 줄만 남긴다 */}
+        {PROLOGUE.slice(Math.max(0, n - 4), n).map((line) => <p key={line.text} className={line.shot ? 'shot' : ''}>{line.text}</p>)}
         <span className="cv-hint">{n < PROLOGUE.length ? '클릭하여 계속' : '클릭하여 시작'}</span>
       </div>
       <button className="cv-skip" onClick={(e) => { e.stopPropagation(); onDone(); }}>건너뛰기</button>
@@ -49,6 +51,7 @@ export function RoleSelect({ onBack, onPick }: { onBack: () => void; onPick: (ro
             <div className="cv-role-row">
               {group(side).map((r) => (
                 <button key={r.id} className={`cv-role ${sel === r.id ? 'on' : ''} ${r.side}`} onClick={() => { audio.sfx('paper', 0.5); setSel(r.id); }}>
+                  <img src={portrait(r.id)} alt="" />
                   <b>{r.name}</b>
                   <span>{r.title}</span>
                 </button>
@@ -56,11 +59,14 @@ export function RoleSelect({ onBack, onPick }: { onBack: () => void; onPick: (ro
             </div>
           </section>
         ))}
+        <div className="cv-role-detail" key={role.id}>
+          <img className="cv-poster" src={portrait(role.id, 'poster')} alt={`${role.name} 인물 포스터`} />
+          <Dossier role={role} />
+        </div>
         <footer className="cv-role-foot">
-          <p><b>{role.name}</b> · {role.title}<br />{role.brief}</p>
+          <p className="cv-note">나만 아는 정보와 개인 목표는 재판 중 '내 기록'에서 볼 수 있습니다. 나머지 네 사람은 컴퓨터가 맡습니다.</p>
           <button className="cv-stroke primary" onClick={() => onPick(sel)}><Gavel size={18} /><span>재판 시작</span></button>
         </footer>
-        <p className="cv-note">나머지 네 사람은 컴퓨터가 맡습니다.</p>
       </div>
     </div>
   );

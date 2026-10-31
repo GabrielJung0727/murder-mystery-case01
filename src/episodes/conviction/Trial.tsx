@@ -1,8 +1,9 @@
-import { ArrowLeft, Gavel, KeyRound, Shield, Swords } from 'lucide-react';
+import { ArrowLeft, Check, Gavel, KeyRound, Minus, Shield, Swords, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
-import { CLOSING, ENDINGS, KEY_ITEMS, RULES, SUSPECTS, roleOf, type KeyItem, type RoleId, type SuspectId } from './data';
-import { applyTrial, found, pickBlocked, type Phase, type TrialAction, type TrialState } from './engine';
+import { CLOSING, ENDINGS, KEY_ITEMS, ROLES, RULES, SETTING, SUSPECTS, roleOf, type KeyItem, type RoleId, type SuspectId } from './data';
+import { Dossier } from './Dossier';
+import { applyTrial, found, goalResults, pickBlocked, sentenceBlocked, type Phase, type TrialAction, type TrialState } from './engine';
 import { saveTrial } from './save';
 import { Scene } from './Scene';
 
@@ -25,7 +26,7 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
       <header className="cv-bar">
         <button className="cv-back" onClick={onExit}><ArrowLeft size={16} /> 타이틀</button>
         <div className="cv-bar-mid">
-          <span className="cv-kicker">{inRound ? `제${s.round}라운드` : '최종 재판'}</span>
+          <span className="cv-kicker">{SETTING.caseNo} · {inRound ? `제${s.round}라운드` : '최종 재판'}</span>
           <ol className="cv-steps">
             {(inRound ? ROUND_STEPS : (['final-qa', 'sentence', 'verdict', 'ending'] as Phase[])).map((p) => (
               <li key={p} className={p === s.phase ? 'on' : ''}>{PHASE_NAME[p]}</li>
@@ -37,10 +38,34 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
 
       <div className="cv-trial-body">
         <aside className="cv-panel cv-hand">
-          <h3>내 증거 <small>{s.hands[s.player].length}장</small></h3>
-          {s.hands[s.player].length === 0 && <p className="cv-muted">아직 얻은 증거가 없습니다.</p>}
+          <SidePanel s={s} />
+        </aside>
+        <main className="cv-panel cv-stage">
+          <PhaseView s={s} act={act} onExit={onExit} />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+type Tab = 'evidence' | 'me' | 'files';
+
+/** 왼쪽 패널: 내 증거 / 내 기록(비밀·개인 기록·목표) / 다른 인물의 공개 파일 */
+function SidePanel({ s }: { s: TrialState }) {
+  const [tab, setTab] = useState<Tab>('evidence');
+  const hand = s.hands[s.player];
+  return (
+    <>
+      <nav className="cv-tabs">
+        {([['evidence', `증거 ${hand.length}`], ['me', '내 기록'], ['files', '인물 파일']] as [Tab, string][]).map(([id, label]) => (
+          <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{label}</button>
+        ))}
+      </nav>
+      {tab === 'evidence' && (
+        <>
+          {hand.length === 0 && <p className="cv-muted">아직 얻은 증거가 없습니다.</p>}
           <ul>
-            {s.hands[s.player].map((id) => {
+            {hand.map((id) => {
               const c = s.cards[id];
               return (
                 <li key={id} className={`cv-card ${c.kind} ${c.key ? 'key' : ''}`}>
@@ -51,12 +76,11 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
               );
             })}
           </ul>
-        </aside>
-        <main className="cv-panel cv-stage">
-          <PhaseView s={s} act={act} onExit={onExit} />
-        </main>
-      </div>
-    </div>
+        </>
+      )}
+      {tab === 'me' && <Dossier role={roleOf(s.player)} full />}
+      {tab === 'files' && ROLES.filter((r) => r.id !== s.player).map((r) => <Dossier key={r.id} role={r} />)}
+    </>
   );
 }
 
@@ -103,9 +127,10 @@ function PhaseView({ s, act, onExit }: { s: TrialState; act: (a: TrialAction) =>
     case 'sentence':
       return (
         <>
-          <PhaseHead title="구형" text="검사가 공개 재판을 선언하고, 피고인마다 유죄와 무죄를 구형합니다. 모두 유죄나 모두 무죄도 가능합니다." />
+          <PhaseHead title="구형" text="검사가 공개 재판을 선언하고, 지금까지의 증거와 진술을 정리해 피고인마다 유죄와 무죄를 구형합니다. 판사가 컴퓨터일 때는 반드시 한 명만 유죄로 구형합니다." />
           {s.player === 'prosecutor' ? <SentenceForm s={s} act={act} /> : <p className="cv-muted">하네즈가와 요시 검사가 구형을 준비합니다.</p>}
-          {next('판결로')}
+          {sentenceBlocked(s) && <p className="cv-warn">{sentenceBlocked(s)}</p>}
+          {!sentenceBlocked(s) && next('판결로')}
         </>
       );
     case 'verdict':
@@ -120,7 +145,7 @@ function PhaseView({ s, act, onExit }: { s: TrialState; act: (a: TrialAction) =>
       const e = ENDINGS[s.ending!];
       return (
         <div className="cv-ending">
-          <span className="cv-kicker">판결 · {nameOf(s.verdict!)} 유죄</span>
+          <span className="cv-kicker">판결 · {nameOf(s.verdict!)} 유죄 · {e.tag}</span>
           <h2>{e.title}</h2>
           <p>{e.text}</p>
           <ul className="cv-keys">
@@ -128,6 +153,18 @@ function PhaseView({ s, act, onExit }: { s: TrialState; act: (a: TrialAction) =>
               <li key={k} className={found(s, k) ? 'on' : ''}><KeyRound size={12} /> {KEY_ITEMS[k].name} — {nameOf(KEY_ITEMS[k].finder)} {found(s, k) ? '발견' : '못 찾음'}</li>
             ))}
           </ul>
+          <section className="cv-goals">
+            <h3>{roleOf(s.player).name}의 개인 목표</h3>
+            <ul>
+              {goalResults(s).map((g) => (
+                <li key={g.label} className={g.done === null ? 'open' : g.done ? 'done' : 'fail'}>
+                  {g.done === null ? <Minus size={14} /> : g.done ? <Check size={14} /> : <X size={14} />}
+                  <span>{g.label}</span>
+                  <small>{g.note ?? (g.done ? '달성' : '실패')}</small>
+                </li>
+              ))}
+            </ul>
+          </section>
           <blockquote>{CLOSING}</blockquote>
           <button className="cv-stroke primary" onClick={onExit}><span>타이틀로</span></button>
         </div>

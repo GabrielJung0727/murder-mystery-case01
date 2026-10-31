@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SUSPECTS } from './data';
-import { allowance, applyTrial, createTrial, endingFor, found, pickBlocked, type TrialState } from './engine';
+import { allowance, applyTrial, createTrial, endingFor, goalResults, pickBlocked, sentenceBlocked, type TrialState } from './engine';
 
 const run = (s: TrialState, n: number) => {
   for (let i = 0; i < n; i++) s = applyTrial(s, { type: 'advance' });
@@ -68,17 +68,35 @@ describe('trial flow', () => {
     expect(s.ending).not.toBeNull();
   });
 
-  it('makes a player prosecutor sentence everyone before the verdict', () => {
+  it('makes a player prosecutor sentence everyone, with exactly one guilty for the NPC judge', () => {
     let s = run(createTrial('prosecutor', 5), 10);
     expect(s.phase).toBe('sentence');
-    expect(applyTrial(s, { type: 'advance' })).toBe(s);
+    expect(sentenceBlocked(s)).not.toBeNull();
     for (const x of SUSPECTS) s = applyTrial(s, { type: 'sentence', suspect: x, plea: 'innocent' });
+    expect(applyTrial(s, { type: 'advance' })).toBe(s);
+    s = applyTrial(s, { type: 'sentence', suspect: 'kim', plea: 'guilty' });
+    s = applyTrial(s, { type: 'sentence', suspect: 'yun', plea: 'guilty' });
+    expect(sentenceBlocked(s)).not.toBeNull();
+    s = applyTrial(s, { type: 'sentence', suspect: 'yun', plea: 'innocent' });
+    expect(sentenceBlocked(s)).toBeNull();
     s = applyTrial(s, { type: 'advance' });
     expect(s.phase).toBe('verdict');
-    // 모두 무죄를 구형해도 NPC 판사는 반드시 한 사람을 유죄로 판결한다
     s = applyTrial(s, { type: 'advance' });
     expect(s.phase).toBe('ending');
     expect(SUSPECTS).toContain(s.verdict);
+  });
+});
+
+describe('personal goals', () => {
+  it('judges what the game can see and leaves dialogue-only goals open', () => {
+    let s = run(createTrial('yun', 4), 12);
+    expect(s.phase).toBe('ending');
+    const g = goalResults(s);
+    expect(g).toHaveLength(2);
+    expect(g[0].done).toBe(s.verdict !== 'yun');
+    expect(g[1].done).toBe(!s.strong.includes('yun'));
+    expect(goalResults(s, 'prosecutor').map((x) => x.done)).toEqual([null, null]);
+    expect(goalResults(s, 'judge')[1].done).toBe(s.ending !== 'E2');
   });
 });
 
@@ -94,14 +112,20 @@ describe('ending matrix', () => {
   });
 
   it('counts a key item only in its finder’s hands', () => {
-    let s = createTrial('kim', 2);
-    s = applyTrial(s, { type: 'pick', role: 'kim', kind: 'innocence', about: 'kim' });
-    expect(found(s, 'bomb')).toBe(true);
-    let j = createTrial('judge', 2);
-    j = applyTrial(j, { type: 'pick', role: 'judge', kind: 'attack', about: 'yun' });
-    expect(found(j, 'diary')).toBe(true);
-    let p = createTrial('prosecutor', 2);
-    p = applyTrial(p, { type: 'pick', role: 'prosecutor', kind: 'attack', about: 'yun' });
-    expect(p.cards[p.hands.prosecutor[0]].key).toBeUndefined();
+    // 폭탄은 김익상이 윤치형을 공격할 때, 대학일기는 하세다가 윤치형을 지목할 때, 연락쪽지는 마자르의 무죄 증거에서 나온다
+    const draws = (role: 'kim' | 'judge' | 'mazar' | 'prosecutor', kind: 'innocence' | 'attack', about: 'yun' | 'mazar', n: number) => {
+      const out = new Set<string | undefined>();
+      for (let seed = 1; seed <= n; seed++) {
+        const s = applyTrial(createTrial(role, seed), { type: 'pick', role, kind, about });
+        out.add(s.cards[s.hands[role][0]].key);
+      }
+      return out;
+    };
+    expect(draws('kim', 'attack', 'yun', 60)).toContain('bomb');
+    expect(draws('judge', 'attack', 'yun', 60)).toContain('diary');
+    expect(draws('mazar', 'innocence', 'mazar', 60)).toContain('note');
+    const prosecutor = draws('prosecutor', 'attack', 'yun', 60);
+    expect(prosecutor.has('bomb') || prosecutor.has('diary')).toBe(false);
+    expect(draws('kim', 'attack', 'yun', 60)).not.toContain('diary');
   });
 });

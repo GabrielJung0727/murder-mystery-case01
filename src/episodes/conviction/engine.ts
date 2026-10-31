@@ -128,8 +128,11 @@ export function suspicion(s: TrialState, who: SuspectId): number {
   return n;
 }
 
-const mostSuspected = (s: TrialState): SuspectId =>
-  [...SUSPECTS].sort((a, b) => suspicion(s, b) - suspicion(s, a) || (s.sentence[b] === 'guilty' ? 1 : 0) - (s.sentence[a] === 'guilty' ? 1 : 0))[0];
+/** 가장 의심스러운 용의자. 검사가 유죄를 구형한 사람에게 무게를 더 둔다 (판사는 구형과 증거를 함께 본다) */
+const mostSuspected = (s: TrialState): SuspectId => {
+  const weight = (x: SuspectId) => suspicion(s, x) + (s.sentence[x] === 'guilty' ? 2 : 0);
+  return [...SUSPECTS].sort((a, b) => weight(b) - weight(a))[0];
+};
 
 /** 플레이어가 아닌 역할은 남은 선택을 정해진 방식으로 쓴다 */
 function npcPicks(s: TrialState): void {
@@ -150,6 +153,37 @@ function npcPicks(s: TrialState): void {
       while (s.picks[role] > 0) pick(s, role, 'attack', target);
     }
   }
+}
+
+/**
+ * 검사가 구형을 마칠 수 있는지 (이유 문자열, 가능하면 null).
+ * 혼자 하기에서 검사가 플레이어면 판사는 컴퓨터이므로, 반드시 한 명만 유죄로 구형해야 한다 (07 진행서 'NPC 판사 진행 규칙').
+ */
+export function sentenceBlocked(s: TrialState): string | null {
+  if (s.phase !== 'sentence' || s.player !== 'prosecutor') return null;
+  if (SUSPECTS.some((x) => !s.sentence[x])) return '세 피고인 모두에게 구형해야 합니다';
+  if (SUSPECTS.filter((x) => s.sentence[x] === 'guilty').length !== 1) return '판사가 컴퓨터일 때는 한 명만 유죄로 구형해야 합니다';
+  return null;
+}
+
+/** 개인 목표 판정. null 은 대화로만 드러나 게임이 판정할 수 없는 목표 */
+export function goalResults(s: TrialState, role: RoleId = s.player): { label: string; done: boolean | null; note?: string }[] {
+  const labels = ROLES.find((r) => r.id === role)!.goals;
+  const acquitted = (x: SuspectId) => s.phase === 'ending' && s.verdict !== x;
+  const results: Record<RoleId, (boolean | null)[]> = {
+    // '범인을 찾는다'는 끝내 알 수 없는 진상이므로 판정하지 않는다
+    judge: [null, s.ending !== 'E2'],
+    prosecutor: [null, null],
+    kim: [acquitted('kim'), found(s, 'bomb')],
+    // 피고인 셋은 모두 의열단원이다. 마자르가 풀려나면 함께 풀려난 동지가 반드시 한 명 있다
+    mazar: [acquitted('mazar'), acquitted('mazar')],
+    yun: [acquitted('yun'), !s.strong.includes('yun')],
+  };
+  const notes: Partial<Record<RoleId, (string | undefined)[]>> = {
+    judge: ['진범은 끝내 알 수 없었다'],
+    prosecutor: ['진범은 끝내 알 수 없었다', '대화로 정해지는 목표'],
+  };
+  return labels.map((label, i) => ({ label, done: results[role][i], note: notes[role]?.[i] }));
 }
 
 /** 핵심 증거를 찾아야 할 사람이 손에 넣었는지 */
@@ -226,7 +260,7 @@ function advance(s: TrialState): boolean {
       if (s.player !== 'prosecutor') {
         const top = mostSuspected(s);
         for (const x of SUSPECTS) s.sentence[x] = x === top ? 'guilty' : 'innocent';
-      } else if (SUSPECTS.some((x) => !s.sentence[x])) return false;
+      } else if (sentenceBlocked(s)) return false;
       s.phase = 'verdict';
       s.log.push('판결');
       return true;
