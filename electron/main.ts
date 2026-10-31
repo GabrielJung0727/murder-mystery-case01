@@ -5,6 +5,9 @@ import path from 'node:path';
 import { startHostServer, type HostServer } from '../src/net/hostServer';
 import { setupUpdater } from './updater';
 
+// 제품 이름이 '공작소 도서관'(v3.0.1~)으로 바뀌어도, 이어하기·기록·음량이 든 사용자 데이터 폴더는 예전 이름을 그대로 쓴다
+app.setPath('userData', path.join(app.getPath('appData'), '공작소의 밤'));
+
 let win: BrowserWindow | null = null;
 let server: HostServer | null = null;
 
@@ -22,7 +25,7 @@ function createWindow() {
     minWidth: 1280,
     minHeight: 720,
     backgroundColor: '#0b0f17',
-    title: '공작소의 밤',
+    title: '공작소 도서관',
     icon: path.join(__dirname, '../dist/icon.png'),
     autoHideMenuBar: true,
     webPreferences: {

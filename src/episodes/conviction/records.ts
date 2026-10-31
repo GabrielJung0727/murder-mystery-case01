@@ -30,11 +30,9 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'diary', title: '낡은 대학일기', desc: '오미하라 하세다로 대학일기를 찾는다.', check: (s) => s.player === 'judge' && found(s, 'diary') },
   { id: 'note', title: '호텔 객실의 쪽지', desc: '초머 마자르로 연락쪽지를 찾는다.', check: (s) => s.player === 'mazar' && found(s, 'note') },
   {
-    id: 'goals', title: '흔들리지 않는 신념', desc: '한 판에서 판정되는 개인 목표를 모두 이룬다.',
-    check: (s) => {
-      const judged = goalResults(s).filter((g) => g.done !== null);
-      return judged.length > 0 && judged.every((g) => g.done);
-    },
+    // 판사·검사의 목표는 대부분 대화로 정해져 판정되지 않으므로, 목표가 모두 판정되는 피고인만 대상으로 한다
+    id: 'goals', title: '흔들리지 않는 신념', desc: '피고인으로 개인 목표를 모두 이룬다.',
+    check: (s) => isSuspect(s.player) && goalResults(s).every((g) => g.done === true),
   },
   {
     id: 'silence', title: '침묵은 금', desc: '세 라운드 모두 묵비권을 쓰고도 유죄를 피한다.',

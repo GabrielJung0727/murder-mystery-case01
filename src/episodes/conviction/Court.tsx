@@ -1,8 +1,8 @@
 // 가운데 경성 재판장: 위에 법대(재판관·검사), 아래 피고인석 세 자리.
 // 단계마다 피고인석의 버튼이 바뀐다: 증거 받기 → 묵비권·강력 용의자 지명 → 구형 → 판결.
-import { Gavel, Scale, Shield, Swords, VolumeX } from 'lucide-react';
+import { Gavel, MessageCircle, Scale, Shield, Swords, VolumeX } from 'lucide-react';
 import { audio } from '../../audio/director';
-import { RULES, SUSPECTS, portrait, roleOf, type SuspectId } from './data';
+import { RULES, SUSPECTS, portrait, roleOf, type RoleId, type SuspectId } from './data';
 import { ASSETS, roomFor } from './assets';
 import { pickBlocked, type Phase, type TrialAction, type TrialState } from './engine';
 
@@ -48,6 +48,31 @@ export function Court({ s, act }: { s: TrialState; act: (a: TrialAction) => void
   );
 }
 
+/** 비밀 대화 채널: 법관석(검사·재판관) 또는 피고인석(피고인 셋). 플레이어가 앉은 쪽 */
+export function channelOf(me: RoleId): { name: string; members: RoleId[] } {
+  return (SUSPECTS as RoleId[]).includes(me)
+    ? { name: '피고인석 채널', members: SUSPECTS }
+    : { name: '법관석 채널', members: ['prosecutor', 'judge'] };
+}
+
+/** 이름 뒤 '와/과' (받침이 있으면 과) */
+export function withParticle(name: string): string {
+  const code = name.charCodeAt(name.length - 1) - 0xac00;
+  return name + (code >= 0 && code < 11172 && code % 28 !== 0 ? '과' : '와');
+}
+
+/** 비밀 대화 중 나와 같은 채널의 상대 이름들 */
+export function partnersLine(me: RoleId): string {
+  const names = channelOf(me).members.filter((x) => x !== me).map((x) => roleOf(x).name);
+  return withParticle(names.join(' · '));
+}
+
+/** 비밀 대화 중 이 인물이 내 채널(talking)인지, 다른 채널(away)인지 */
+function talkClass(s: TrialState, id: RoleId): string {
+  if (s.phase !== 'secret' || id === s.player) return '';
+  return channelOf(s.player).members.includes(id) ? 'talking' : 'away';
+}
+
 /** 상황판 아래줄: 남은 선택과 다음에 누를 곳 (플레이어가 할 일이 없으면 null) */
 function boardHint(s: TrialState): { token?: string; text: string; done?: boolean } | null {
   const me = s.player;
@@ -58,13 +83,19 @@ function boardHint(s: TrialState): { token?: string; text: string; done?: boolea
         ? { token: `남은 선택 ${left}`, text: '↓ 피고인석에서 증거를 받으십시오' }
         : { token: '선택 끝', text: '✓ 이번 라운드 증거를 모두 받았습니다 · 오른쪽 [배분 마치기]', done: true };
     }
+    case 'secret':
+      return { token: channelOf(me).name, text: `${partnersLine(me)} 이야기하는 중` };
     case 'trial':
       if (me === 'prosecutor') {
         return s.strong[s.round - 1]
           ? { text: '✓ 강력 용의자를 지명했습니다', done: true }
           : { text: '↓ 강력 용의자로 지명할 피고인을 고를 수 있습니다' };
       }
-      if ((SUSPECTS as string[]).includes(me)) return { text: '내 자리의 [묵비권]으로 대답을 거부할 수 있습니다' };
+      if ((SUSPECTS as string[]).includes(me)) {
+        return s.silent[me as SuspectId].includes(s.round)
+          ? { text: '✓ 이번 라운드는 묵비권을 행사하고 있습니다', done: true }
+          : { text: '내 자리의 [묵비권]으로 대답을 거부할 수 있습니다' };
+      }
       return null;
     case 'sentence': {
       if (me !== 'prosecutor') return null;
@@ -96,8 +127,9 @@ function Officer({ id, label, s, high }: { id: 'judge' | 'prosecutor'; label: st
   const r = roleOf(id);
   const speaking = (id === 'judge' && s.phase === 'verdict') || (id === 'prosecutor' && (s.phase === 'sentence' || s.phase === 'final-qa'));
   return (
-    <div className={`cv-officer ${high ? 'high' : ''} ${speaking ? 'speaking' : ''} ${s.player === id ? 'me' : ''}`}>
+    <div className={`cv-officer ${high ? 'high' : ''} ${speaking ? 'speaking' : ''} ${s.player === id ? 'me' : ''} ${talkClass(s, id)}`}>
       <img src={portrait(id)} alt="" />
+      {talkClass(s, id) === 'talking' && <span className="cv-talk"><MessageCircle size={11} /> 밀담 중</span>}
       <span className="cv-plate"><small>{label}</small>{r.name}{s.player === id && <em>나</em>}</span>
     </div>
   );
@@ -116,10 +148,11 @@ function Seat({ who, no, s, act }: { who: SuspectId; no: number; s: TrialState; 
   const targeted = s.phase === 'evidence' && s.targets[s.player] === who;
 
   return (
-    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''} ${canAct(s, who) ? 'cta' : ''} ${targeted ? 'targeted' : ''}`}>
+    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''} ${canAct(s, who) ? 'cta' : ''} ${targeted ? 'targeted' : ''} ${talkClass(s, who)}`}>
       <div className="cv-seat-tag">
         <span>被告人 {SEAT_NO[no]}</span>
         {targeted && <em>지목</em>}
+        {talkClass(s, who) === 'talking' && <em className="talk"><MessageCircle size={10} /> 밀담 중</em>}
         {strongRounds.length > 0 && (
           <span className="cv-seat-marks" title="강력 용의자로 지명된 라운드">
             {strongRounds.map((n) => <i key={n}>{n}</i>)}

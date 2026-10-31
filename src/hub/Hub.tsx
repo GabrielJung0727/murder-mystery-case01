@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Bookshelf } from './Bookshelf';
 import type { Episode } from './episodes';
 
@@ -6,6 +6,10 @@ import type { Episode } from './episodes';
 export function Hub() {
   const [open, setOpen] = useState<Episode | null>(null);
   const Root = open?.Root;
+  // 창 제목: 책장에서는 도서관 이름, 에피소드 안에서는 그 에피소드 이름
+  useEffect(() => {
+    document.title = open ? open.title : '공작소 도서관';
+  }, [open]);
   if (Root) {
     return (
       <Suspense fallback={<div className="screen hub-loading">기록을 펼치는 중…</div>}>

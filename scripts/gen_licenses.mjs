@@ -17,7 +17,7 @@ const NOTES = {
 
 const names = [...Object.keys(pkg.dependencies), 'electron'].sort();
 const list = [];
-let text = `공작소의 밤 v${pkg.version} — 오픈소스 라이선스 고지\n이 프로그램은 아래 오픈소스 소프트웨어를 포함합니다.\n`;
+let text = `공작소 도서관 v${pkg.version} — 오픈소스 라이선스 고지\n이 프로그램은 아래 오픈소스 소프트웨어를 포함합니다.\n`;
 for (const name of names) {
   const dir = join(root, 'node_modules', name);
   const meta = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));

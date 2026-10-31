@@ -1,7 +1,7 @@
 {
   "name": "gongjakso-night",
-  "productName": "공작소의 밤",
-  "version": "3.0.0",
+  "productName": "공작소 도서관",
+  "version": "3.0.1",
   "description": "MURDER MYSTERY CASE 01 - 공작소의 밤 (PC 2D 추리 게임)",
   "main": "dist-electron/main.js",
   "private": true,
@@ -52,7 +52,7 @@
   },
   "build": {
     "appId": "com.gongjakso.night",
-    "productName": "공작소의 밤",
+    "productName": "공작소 도서관",
     "directories": {
       "output": "release"
     },
@@ -72,8 +72,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "공작소의 밤",
-      "uninstallDisplayName": "공작소의 밤",
+      "shortcutName": "공작소 도서관",
+      "uninstallDisplayName": "공작소 도서관",
       "deleteAppDataOnUninstall": false,
       "artifactName": "GongjaksoNight-Setup-${version}.exe"
     },

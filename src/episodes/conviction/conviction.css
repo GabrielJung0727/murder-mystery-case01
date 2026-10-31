@@ -214,6 +214,13 @@
 @keyframes cv-cta { 50% { box-shadow: 0 0 0 1px rgba(201, 81, 71, .7), 0 0 22px rgba(184, 44, 44, .4); } }
 .cv-seat-tag { display: flex; align-items: center; gap: 6px; padding-bottom: 5px; border-bottom: 1px solid #332315; font-family: var(--type); font-size: 10px; letter-spacing: .12em; color: #967d63; }
 .cv-seat-tag em { font-style: normal; font-family: var(--serif); font-weight: 700; letter-spacing: 0; padding: 0 6px; color: #ffd9d9; background: #8a1c18; border-radius: 2px; }
+/* 비밀 대화: 내 채널 사람은 호박빛으로 '밀담 중', 다른 채널은 어둡게 물러난다 */
+.cv-seat-tag em.talk, .cv-talk { display: inline-flex; align-items: center; gap: 3px; color: #2a1a08; background: #e7a54c; }
+.cv-talk { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); padding: 1px 7px; font-size: 10.5px; font-weight: 700; white-space: nowrap; border-radius: 2px; box-shadow: 0 2px 6px rgba(0, 0, 0, .6); }
+.cv-officer { position: relative; }
+.cv-officer.talking img, .cv-seat.talking .cv-seat-face img { border-color: var(--cv-amber); box-shadow: 0 0 0 1px var(--cv-amber), 0 0 22px rgba(231, 165, 76, .45); }
+.cv-seat.talking { border-color: rgba(231, 165, 76, .7); }
+.cv-officer.away, .cv-seat.away { opacity: .4; filter: grayscale(.8); transition: opacity .4s, filter .4s; }
 .cv-seat-main { display: flex; align-items: center; gap: 12px; }
 .cv-seat-face { position: relative; flex: none; }
 .cv-seat-face img { display: block; width: 66px; height: 80px; object-fit: cover; object-position: 50% 30%; border: 1px solid #7d5b38; box-shadow: inset 0 0 10px #000; }
@@ -305,6 +312,9 @@
   color: #ccb69b; background: #261b12; border: 1px solid #543d28; border-radius: 2px; box-shadow: 0 6px 14px rgba(0, 0, 0, .6); transition: background .2s, box-shadow .2s; }
 .cv-gavel:hover { background: #36261a; color: #f3e6cc; }
 /* 할 일을 마쳤으면 붉게 빛나 다음으로 넘기라고 알린다 */
+/* 공판 기록이 길어져도(비밀 대화·최후 질의) 다음 단계 버튼은 아래에 붙어 늘 보인다 */
+.cv-docket-paper > .cv-gavel, .cv-docket-paper > .cv-warn { position: sticky; bottom: -16px; z-index: 2; box-shadow: 0 -14px 18px var(--cv-parch); }
+.cv-docket-paper > .cv-warn { padding: 8px 0; background: var(--cv-parch); }
 .cv-gavel.ready { color: #fff8f0; background: #7d2222; border-color: #d46a6a; box-shadow: 0 0 20px rgba(125, 34, 34, .6); }
 .cv-gavel.ready:hover { background: #962929; }
 

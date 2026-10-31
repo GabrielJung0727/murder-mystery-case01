@@ -2,6 +2,7 @@
 import { ArrowLeft, KeyRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLES, SETTING, portrait, roleOf, type RoleId } from './data';
+import { audio } from '../../audio/director';
 import { ASSETS } from './assets';
 import { DialogueBar } from './Caption';
 import { Court } from './Court';
@@ -50,6 +51,8 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
 /** 단계마다 곡을 바꾸고, 상태가 바뀔 때마다 대사와 효과음을 울린다 (엔딩 소리는 EndingView 가 맡는다) */
 function useTrialSound(s: TrialState) {
   const prev = useRef<TrialState | null>(null);
+  // 타이틀로 나가면 읽던 대사를 멈춘다
+  useEffect(() => () => audio.stopNarration(), []);
   useEffect(() => {
     if (s.phase !== 'ending') {
       music(phaseTrack(s.phase), prev.current ? 2.5 : 3);
@@ -85,7 +88,7 @@ function Files({ s }: { s: TrialState }) {
                 return (
                   <li key={id} className={`cv-slip ${c.kind} ${c.key ? 'key' : ''}`}>
                     {ASSETS.evidence[c.id] && <img className="cv-slip-photo" src={ASSETS.evidence[c.id]} alt="" loading="lazy" />}
-                    <span className="cv-slip-no">證 {c.id}</span>
+                    <span className="cv-slip-no">證 {c.id.startsWith('stub-') ? '未定' : c.id}</span>
                     <span className="cv-slip-tag">{c.key ? <><KeyRound size={11} /> 핵심 증거</> : c.kind === 'innocence' ? '무죄 증거' : '공격 증거'} · {nameOf(c.about)}</span>
                     <b>{c.title}</b>
                     <p>{c.text}</p>

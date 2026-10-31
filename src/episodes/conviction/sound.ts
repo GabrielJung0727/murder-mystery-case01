@@ -140,9 +140,11 @@ export function sfx(id: Sfx, gain = 1, duck = false): void {
   audio.oneShot(list[i].src, gain, duck ? list[i].duration : 0);
 }
 
-/** 대사를 순서대로 읽는다 (녹음이 없는 줄은 건너뛴다) */
+/** 대사를 순서대로 읽는다. 녹음이 없는 줄은 건너뛰고, 읽을 줄이 하나도 없으면 읽던 것을 끊지 않는다 */
 export function say(ids: string[], delay = 0, onEnd?: () => void): void {
-  audio.speak(ids.filter(has).map((id) => ({ id, src: VOICE[id].src })), delay, onEnd);
+  const lines = ids.filter(has).map((id) => ({ id, src: VOICE[id].src }));
+  if (lines.length === 0) return onEnd?.();
+  audio.speak(lines, delay, onEnd);
 }
 
 /** 에피소드에 들어와 있는 동안: 1막 환경음을 끄고, 나갈 때 2막 소리를 모두 정리한다 */

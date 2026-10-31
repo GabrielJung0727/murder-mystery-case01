@@ -2,7 +2,7 @@
 import { Check, Gavel } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { RULES, SUSPECTS, roleOf, type RoleId } from './data';
-import { picksLine } from './Court';
+import { partnersLine, picksLine } from './Court';
 import { sentenceBlocked, type Phase, type TrialAction, type TrialState } from './engine';
 import { say } from './sound';
 
@@ -99,7 +99,8 @@ function PhaseDetail({ s }: { s: TrialState }) {
           <Countdown key={`secret${s.round}`} seconds={RULES.secretSeconds} />
           <Channel title="법관석 채널" who={['prosecutor', 'judge']} me={s.player} />
           <Channel title="피고인석 채널" who={SUSPECTS} me={s.player} />
-          <p className="cv-muted">컴퓨터가 맡은 인물과의 대화는 집필 중입니다.</p>
+          <p className="cv-docket-em">지금 {partnersLine(s.player)} 이야기하는 중입니다.</p>
+          <p className="cv-muted">컴퓨터가 맡은 인물의 대사는 집필 중입니다.</p>
         </>
       );
     case 'trial':
