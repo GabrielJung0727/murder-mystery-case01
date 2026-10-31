@@ -30,9 +30,16 @@ export interface Volumes { master: number; music: number; ambience: number; sfx:
 const DEFAULT_VOLUMES: Volumes = { master: 0.85, music: 0.85, ambience: 0.6, sfx: 0.8, voice: 1, narration: true, blips: true, muted: false };
 const STORE_KEY = 'gongjakso.volumes';
 
-interface Deck { track: TrackId; gain: GainNode; source: AudioBufferSourceNode; timer?: ReturnType<typeof setTimeout> }
+/** 루프 크로스페이드와 음량 맞춤에 필요한 곡 정보 */
+interface DeckMeta { id: string; loopStart: number; loopEnd: number; rmsDb: number }
+interface Deck { track: string; gain: GainNode; source: AudioBufferSourceNode; timer?: ReturnType<typeof setTimeout> }
 
-export interface NowPlaying { title: string; titleEn: string; scene: Scene | null; voice: VoiceId | null }
+/** 다른 에피소드가 자기 manifest 에서 넘기는 곡 */
+export interface MusicTrack extends DeckMeta { src: string; title: string; titleEn: string; loop: boolean }
+/** 다른 에피소드가 넘기는 대사 한 줄 (id 는 지금 읽는 줄 표시용) */
+export interface Line { id: string; src: string }
+
+export interface NowPlaying { title: string; titleEn: string; scene: Scene | null; voice: string | null }
 
 function loadVolumes(): Volumes {
   try {
@@ -74,6 +81,11 @@ export class AudioDirector {
   private blipCount = 0;
   private rain?: { source: AudioBufferSourceNode; gain: GainNode };
   private clock?: { source: AudioBufferSourceNode; gain: GainNode };
+  private bed?: { src: string; source: AudioBufferSourceNode; gain: GainNode };
+  /** 다른 에피소드의 곡을 트는 중: 긴장도 필터를 쓰지 않는다 */
+  private flat = false;
+  private bedSrc: string | null = null;
+  private bedLevel = 0;
   private buffers = new Map<string, Promise<AudioBuffer>>();
   private deck: Deck | null = null;
   private scene: Scene | null = null;
@@ -169,6 +181,7 @@ export class AudioDirector {
     if (scene === this.scene && scene !== 'ending') return;
     const ctx = this.ensure();
     this.scene = scene;
+    this.flat = false;
     const token = ++this.sceneToken;
     const fade = opts.fade ?? 4;
 
@@ -180,8 +193,9 @@ export class AudioDirector {
       return;
     }
     const track = SCENE_TRACK[scene]!;
+    const meta = { id: track, ...manifest.music[track] };
     if (this.deck?.track === track && scene !== 'ending') {
-      this.setNow(track);
+      this.setNow(meta);
       return;
     }
     void this.load(manifest.music[track].src).then((buffer) => {
@@ -189,7 +203,7 @@ export class AudioDirector {
       this.fadeOutDeck(fade);
       const ending = scene === 'ending';
       const falseEnd = ending && opts.variant === 'false';
-      this.startDeck(track, buffer, {
+      this.startDeck(meta, buffer, {
         fade: ending ? 2.5 : fade,
         offset: manifest.music[track].loopStart,
         loop: !ending,
@@ -197,15 +211,41 @@ export class AudioDirector {
         rate: falseEnd ? 0.94 : 1,
       });
       if (ending) this.musicFilter.frequency.setTargetAtTime(falseEnd ? 2400 : 20000, ctx.currentTime, 0.5);
-      this.setNow(track);
+      this.setNow(meta);
     }).catch(() => {
       /* 음원 로드 실패 시 무음으로 진행 */
     });
   }
 
-  private startDeck(track: TrackId, buffer: AudioBuffer, o: { fade: number; offset: number; loop: boolean; rate: number }): void {
+  /**
+   * 다른 에피소드의 곡을 튼다 (null 이면 음악을 끈다). 1막 장면 음악과 같은 버스와 볼륨을 쓰고,
+   * 루프 곡은 1막처럼 루프 구간을 크로스페이드로 잇는다.
+   */
+  playTrack(t: MusicTrack | null, fade = 3): void {
+    const ctx = this.ensure();
+    this.scene = null;
+    this.flat = true;
+    const token = ++this.sceneToken;
+    this.musicFilter.frequency.setTargetAtTime(20000, ctx.currentTime, 0.3);
+    if (!t) {
+      this.fadeOutDeck(fade);
+      this.setNow(null);
+      return;
+    }
+    if (this.deck?.track === t.id) return;
+    void this.load(t.src).then((buffer) => {
+      if (token !== this.sceneToken) return;
+      this.fadeOutDeck(fade);
+      this.startDeck(t, buffer, { fade, offset: t.loop ? t.loopStart : 0, loop: t.loop, rate: 1 });
+      this.setNow(t);
+    }).catch(() => {
+      /* 음원 로드 실패 시 무음으로 진행 */
+    });
+  }
+
+  private startDeck(meta: DeckMeta, buffer: AudioBuffer, o: { fade: number; offset: number; loop: boolean; rate: number }): void {
     const ctx = this.ctx!;
-    const meta = manifest.music[track];
+    const track = meta.id;
     const gain = ctx.createGain();
     const level = Math.min(2, Math.pow(10, (TARGET_RMS - meta.rmsDb) / 20));
     gain.gain.setValueAtTime(0, ctx.currentTime);
@@ -223,7 +263,7 @@ export class AudioDirector {
       deck.timer = setTimeout(() => {
         if (this.deck !== deck) return;
         this.fadeOutDeck(LOOP_XFADE);
-        this.startDeck(track, buffer, { ...o, fade: LOOP_XFADE, offset: meta.loopStart });
+        this.startDeck(meta, buffer, { ...o, fade: LOOP_XFADE, offset: meta.loopStart });
       }, Math.max(5, playable) * 1000);
     }
     this.deck = deck;
@@ -249,6 +289,39 @@ export class AudioDirector {
     this.applyAmbience(seconds);
     if (rain > 0) void this.ensureLoop('rain', manifest.rain.src).then(() => this.applyAmbience(seconds)).catch(() => undefined);
     if (clock > 0) void this.ensureLoop('clock', manifest.clock.src).then(() => this.applyAmbience(seconds)).catch(() => undefined);
+  }
+
+  /** 다른 에피소드의 환경음 루프 (null 이면 끈다). 1막 빗소리·시계와 같은 환경음 버스를 쓴다 */
+  setBed(src: string | null, level = 1, seconds = 3): void {
+    const ctx = this.ensure();
+    const tc = Math.max(0.01, seconds / 3);
+    if (this.bed && this.bed.src !== src) {
+      const old = this.bed;
+      this.bed = undefined;
+      old.gain.gain.setTargetAtTime(0, ctx.currentTime, tc);
+      old.source.stop(ctx.currentTime + seconds + 0.1);
+    }
+    this.bedSrc = src;
+    this.bedLevel = level;
+    if (!src) return;
+    if (this.bed) {
+      this.bed.gain.gain.setTargetAtTime(level, ctx.currentTime, tc);
+      return;
+    }
+    void this.load(src).then((buffer) => {
+      // 불러오는 동안 다른 루프로 바뀌었거나 꺼졌으면 틀지 않는다
+      if (this.bed || this.bedSrc !== src) return;
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      gain.gain.setTargetAtTime(this.bedLevel, ctx.currentTime, tc);
+      gain.connect(this.ambBus);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(gain);
+      source.start();
+      this.bed = { src, source, gain };
+    }).catch(() => undefined);
   }
 
   /** 엔딩: 비가 서서히 그친다 */
@@ -310,7 +383,7 @@ export class AudioDirector {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     // 평온할수록 음악이 멀고 먹먹하게, 긴장할수록 가까이 선명하게
-    const cutoff = 1800 * Math.pow(20000 / 1800, Math.min(1, this.tension / 70));
+    const cutoff = this.flat ? 20000 : 1800 * Math.pow(20000 / 1800, Math.min(1, this.tension / 70));
     if (this.scene !== 'ending') this.musicFilter.frequency.setTargetAtTime(cutoff, t, Math.max(0.01, seconds / 3));
     this.applyAmbience(seconds);
   }
@@ -323,7 +396,13 @@ export class AudioDirector {
     if (list.length > 1 && i === this.lastShot[kind]) i = (i + 1) % list.length;
     this.lastShot[kind] = i;
     const shot = list[i];
-    void this.load(shot.src).then((buffer) => {
+    this.oneShot(shot.src, gain, kind === 'paper' ? 0 : shot.duration);
+  }
+
+  /** 효과음 한 번. duckSeconds 를 주면 그동안 음악을 잠깐 낮춘다 */
+  oneShot(url: string, gain = 1, duckSeconds = 0): void {
+    this.ensure();
+    void this.load(url).then((buffer) => {
       const ctx = this.ctx!;
       const g = ctx.createGain();
       g.gain.value = gain;
@@ -332,7 +411,7 @@ export class AudioDirector {
       src.buffer = buffer;
       src.connect(g);
       src.start();
-      if (kind !== 'paper') this.duck(0.55, shot.duration);
+      if (duckSeconds > 0) this.duck(0.55, duckSeconds);
     }).catch(() => undefined);
   }
 
@@ -351,20 +430,32 @@ export class AudioDirector {
    * 읽는 동안 음악과 환경음을 낮춘다 (사이드체인 더킹).
    */
   narrate(ids: VoiceId | VoiceId[], delay = 0): void {
-    const queue = (Array.isArray(ids) ? ids : [ids]).filter((id) => id in manifest.voice);
+    const lines = (Array.isArray(ids) ? ids : [ids]).filter(hasVoice).map((id) => ({ id, src: manifest.voice[id].src }));
+    this.speak(lines, delay);
+  }
+
+  /**
+   * 다른 에피소드의 대사·나레이션을 narrate 와 같은 규칙으로 순서대로 읽는다.
+   * onEnd 는 끝까지 읽었을 때 부른다 (나레이션이 꺼져 있거나 읽을 줄이 없으면 바로, 중간에 끊기면 부르지 않는다).
+   */
+  speak(queue: Line[], delay = 0, onEnd?: () => void): void {
     this.stopNarration();
-    if (!this.volumes.narration || queue.length === 0) return;
+    if (!this.volumes.narration || queue.length === 0) {
+      onEnd?.();
+      return;
+    }
     const token = ++this.voiceToken;
     // 음원을 불러오는 동안에도 '읽는 중'으로 표시해, 뒤따르는 인물 대사가 끝까지 기다리게 한다
-    this.setVoice(queue[0]);
+    this.setVoice(queue[0].id);
     const playNext = (i: number, wait: number) => {
       if (token !== this.voiceToken) return;
       if (i >= queue.length) {
         this.endVoice();
+        onEnd?.();
         return;
       }
-      const id = queue[i];
-      void this.load(manifest.voice[id].src).then((buffer) => {
+      const { id, src: url } = queue[i];
+      void this.load(url).then((buffer) => {
         if (token !== this.voiceToken) return;
         const ctx = this.ctx!;
         const src = ctx.createBufferSource();
@@ -412,7 +503,7 @@ export class AudioDirector {
     this.ambDuck.gain.setTargetAtTime(on ? VOICE_DUCK_AMB : 1, t, on ? 0.15 : 0.6);
   }
 
-  private setVoice(id: VoiceId | null): void {
+  private setVoice(id: string | null): void {
     this.now = { ...this.now, voice: id };
     this.emit();
   }
@@ -490,8 +581,7 @@ export class AudioDirector {
 
   getNowPlaying = (): NowPlaying => this.now;
 
-  private setNow(track: TrackId | null): void {
-    const meta = track ? manifest.music[track] : null;
+  private setNow(meta: { title: string; titleEn: string } | null): void {
     this.now = { ...this.now, title: meta?.title ?? '', titleEn: meta?.titleEn ?? '', scene: this.scene };
     this.emit();
   }

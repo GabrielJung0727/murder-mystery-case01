@@ -69,7 +69,7 @@ export function MenuSound() {
 /** 나레이션 재생/정지 버튼. ids 중 하나를 읽는 중이면 정지 버튼이 된다 */
 export function VoiceButton({ ids, label, compact }: { ids: VoiceId[]; label?: string; compact?: boolean }) {
   const now = useNowPlaying();
-  const playing = !!now.voice && ids.includes(now.voice);
+  const playing = !!now.voice && (ids as string[]).includes(now.voice);
   return (
     <button
       className={`voice-btn ${playing ? 'on' : ''} ${compact ? 'compact' : ''}`}

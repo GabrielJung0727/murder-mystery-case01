@@ -6,7 +6,9 @@ const KEY = 'conviction.save';
 export function loadTrial(): TrialState | null {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as TrialState | null;
-    return s && s.schema === 1 && s.phase !== 'ending' && s.hands && s.cards ? s : null;
+    if (!(s && s.schema === 1 && s.phase !== 'ending' && s.hands && s.cards)) return null;
+    // v2.6 이전 저장: 묵비권·메모가 없던 시절
+    return { ...s, silent: s.silent ?? { mazar: [], yun: [], kim: [] }, notes: s.notes ?? '' };
   } catch {
     return null;
   }

@@ -5,6 +5,7 @@ import type { RoleId } from './data';
 import { createTrial, type TrialState } from './engine';
 import { Prologue, RoleSelect } from './Intro';
 import { loadTrial } from './save';
+import { useEpisodeSound } from './sound';
 import { Title } from './Title';
 import { Trial } from './Trial';
 import './conviction.css';
@@ -15,6 +16,7 @@ type Screen = { kind: 'title' } | { kind: 'prologue'; next?: 'roles' } | { kind:
 export function App({ onShelf }: EpisodeProps) {
   const [screen, setScreen] = useState<Screen>({ kind: 'title' });
   const toTitle = () => setScreen({ kind: 'title' });
+  useEpisodeSound();
 
   switch (screen.kind) {
     case 'title':

@@ -1,0 +1,483 @@
+{
+  "music": {
+    "CV-OST01": {
+      "src": "episodes/conviction/audio/music/CV-OST01.ogg",
+      "source": "CV-OST01.wav",
+      "duration": 189.567,
+      "loop": true,
+      "loopStart": 0.05,
+      "loopEnd": 187.3,
+      "rmsDb": -17.6
+    },
+    "CV-OST02": {
+      "src": "episodes/conviction/audio/music/CV-OST02.ogg",
+      "source": "CV-OST02.wav",
+      "duration": 74.767,
+      "loop": false,
+      "loopStart": 0.4,
+      "loopEnd": 72.55,
+      "rmsDb": -17.0
+    },
+    "CV-OST03": {
+      "src": "episodes/conviction/audio/music/CV-OST03.ogg",
+      "source": "CV-OST03.wav",
+      "duration": 119.967,
+      "loop": true,
+      "loopStart": 0.45,
+      "loopEnd": 117.8,
+      "rmsDb": -18.4
+    },
+    "CV-OST04": {
+      "src": "episodes/conviction/audio/music/CV-OST04.ogg",
+      "source": "CV-OST04.wav",
+      "duration": 179.847,
+      "loop": true,
+      "loopStart": 0.2,
+      "loopEnd": 178.3,
+      "rmsDb": -18.8
+    },
+    "CV-OST05": {
+      "src": "episodes/conviction/audio/music/CV-OST05.ogg",
+      "source": "CV-OST05.wav",
+      "duration": 30.007,
+      "loop": true,
+      "loopStart": 0.05,
+      "loopEnd": 28.5,
+      "rmsDb": -20.6
+    },
+    "CV-OST06": {
+      "src": "episodes/conviction/audio/music/CV-OST06.ogg",
+      "source": "CV-OST06.wav",
+      "duration": 59.967,
+      "loop": true,
+      "loopStart": 1.85,
+      "loopEnd": 58.4,
+      "rmsDb": -17.6
+    },
+    "CV-OST07": {
+      "src": "episodes/conviction/audio/music/CV-OST07.ogg",
+      "source": "CV-OST07.wav",
+      "duration": 119.967,
+      "loop": false,
+      "loopStart": 0.05,
+      "loopEnd": 117.1,
+      "rmsDb": -17.8
+    },
+    "CV-OST08": {
+      "src": "episodes/conviction/audio/music/CV-OST08.ogg",
+      "source": "CV-OST08.wav",
+      "duration": 149.927,
+      "loop": false,
+      "loopStart": 0.35,
+      "loopEnd": 147.15,
+      "rmsDb": -18.0
+    },
+    "CV-OST09": {
+      "src": "episodes/conviction/audio/music/CV-OST09.ogg",
+      "source": "CV-OST09.wav",
+      "duration": 89.887,
+      "loop": false,
+      "loopStart": 0.4,
+      "loopEnd": 87.65,
+      "rmsDb": -17.5
+    }
+  },
+  "loops": {
+    "CV-SFX-RAIN": {
+      "src": "episodes/conviction/audio/sfx/rain_loop.ogg",
+      "source": "CV-SFX-RAIN.wav",
+      "duration": 27.0,
+      "rmsDb": -19.0
+    }
+  },
+  "sfx": {
+    "CV-SFX-BOMB": [
+      {
+        "src": "episodes/conviction/audio/sfx/bomb_1.ogg",
+        "duration": 9.0,
+        "rmsDb": -12.9
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/bomb_2.ogg",
+        "duration": 6.1,
+        "rmsDb": -13.4
+      }
+    ],
+    "CV-SFX-BOMB-FAR": [
+      {
+        "src": "episodes/conviction/audio/sfx/bomb-far_1.ogg",
+        "duration": 3.09,
+        "rmsDb": -18.8
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/bomb-far_2.ogg",
+        "duration": 5.05,
+        "rmsDb": -15.0
+      }
+    ],
+    "CV-SFX-CELL": [
+      {
+        "src": "episodes/conviction/audio/sfx/cell_1.ogg",
+        "duration": 2.64,
+        "rmsDb": -16.6
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/cell_2.ogg",
+        "duration": 1.52,
+        "rmsDb": -15.8
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/cell_3.ogg",
+        "duration": 2.06,
+        "rmsDb": -16.7
+      }
+    ],
+    "CV-SFX-CROWD": [
+      {
+        "src": "episodes/conviction/audio/sfx/crowd_1.ogg",
+        "duration": 5.0,
+        "rmsDb": -12.3
+      }
+    ],
+    "CV-SFX-GAVEL": [
+      {
+        "src": "episodes/conviction/audio/sfx/gavel_1.ogg",
+        "duration": 0.56,
+        "rmsDb": -16.2
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/gavel_2.ogg",
+        "duration": 0.5,
+        "rmsDb": -16.6
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/gavel_3.ogg",
+        "duration": 0.54,
+        "rmsDb": -16.1
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/gavel_4.ogg",
+        "duration": 0.56,
+        "rmsDb": -17.0
+      }
+    ],
+    "CV-SFX-GUNSHOT": [
+      {
+        "src": "episodes/conviction/audio/sfx/gunshot_1.ogg",
+        "duration": 2.66,
+        "rmsDb": -21.5
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/gunshot_2.ogg",
+        "duration": 2.64,
+        "rmsDb": -22.5
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/gunshot_3.ogg",
+        "duration": 2.86,
+        "rmsDb": -22.4
+      }
+    ],
+    "CV-SFX-HOOVES": [
+      {
+        "src": "episodes/conviction/audio/sfx/hooves_1.ogg",
+        "duration": 8.0,
+        "rmsDb": -22.3
+      }
+    ],
+    "CV-SFX-STAMP": [
+      {
+        "src": "episodes/conviction/audio/sfx/stamp_1.ogg",
+        "duration": 0.44,
+        "rmsDb": -15.9
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/stamp_2.ogg",
+        "duration": 0.45,
+        "rmsDb": -17.4
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/stamp_3.ogg",
+        "duration": 0.45,
+        "rmsDb": -17.1
+      },
+      {
+        "src": "episodes/conviction/audio/sfx/stamp_4.ogg",
+        "duration": 0.46,
+        "rmsDb": -17.1
+      }
+    ]
+  },
+  "voice": {
+    "CV-HASEDA-01": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-01.ogg",
+      "duration": 8.67,
+      "source": "CV-HASEDA-01.mp3"
+    },
+    "CV-HASEDA-02": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-02.ogg",
+      "duration": 6.27,
+      "source": "CV-HASEDA-02.mp3"
+    },
+    "CV-HASEDA-03": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-03.ogg",
+      "duration": 7.06,
+      "source": "CV-HASEDA-03.mp3"
+    },
+    "CV-HASEDA-04": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-04.ogg",
+      "duration": 2.31,
+      "source": "CV-HASEDA-04.mp3"
+    },
+    "CV-HASEDA-05": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-05.ogg",
+      "duration": 9.74,
+      "source": "CV-HASEDA-05.mp3"
+    },
+    "CV-HASEDA-06": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-06.ogg",
+      "duration": 1.93,
+      "source": "CV-HASEDA-06.mp3"
+    },
+    "CV-HASEDA-07": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-07.ogg",
+      "duration": 3.57,
+      "source": "CV-HASEDA-07.mp3"
+    },
+    "CV-HASEDA-08": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-08.ogg",
+      "duration": 3.46,
+      "source": "CV-HASEDA-08.mp3"
+    },
+    "CV-HASEDA-09": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-09.ogg",
+      "duration": 4.97,
+      "source": "CV-HASEDA-09.mp3"
+    },
+    "CV-HASEDA-V-KIM": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-V-KIM.ogg",
+      "duration": 3.64,
+      "source": "CV-HASEDA-V-KIM.mp3"
+    },
+    "CV-HASEDA-V-MAZAR": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-V-MAZAR.ogg",
+      "duration": 3.89,
+      "source": "CV-HASEDA-V-MAZAR.mp3"
+    },
+    "CV-HASEDA-V-YUN": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-V-YUN.ogg",
+      "duration": 3.73,
+      "source": "CV-HASEDA-V-YUN.mp3"
+    },
+    "CV-HASEDA-VJ": {
+      "src": "episodes/conviction/audio/voice/CV-HASEDA-VJ.ogg",
+      "duration": 2.3,
+      "source": "CV-HASEDA-VJ.mp3"
+    },
+    "CV-KIM-01": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-01.ogg",
+      "duration": 2.83,
+      "source": "CV-KIM-01.mp3"
+    },
+    "CV-KIM-02": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-02.ogg",
+      "duration": 7.91,
+      "source": "CV-KIM-02.mp3"
+    },
+    "CV-KIM-03": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-03.ogg",
+      "duration": 2.85,
+      "source": "CV-KIM-03.mp3"
+    },
+    "CV-KIM-04": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-04.ogg",
+      "duration": 5.85,
+      "source": "CV-KIM-04.mp3"
+    },
+    "CV-KIM-05": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-05.ogg",
+      "duration": 2.2,
+      "source": "CV-KIM-05.mp3"
+    },
+    "CV-KIM-06": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-06.ogg",
+      "duration": 2.18,
+      "source": "CV-KIM-06.mp3"
+    },
+    "CV-KIM-07": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-07.ogg",
+      "duration": 2.65,
+      "source": "CV-KIM-07.mp3"
+    },
+    "CV-KIM-08": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-08.ogg",
+      "duration": 1.68,
+      "source": "CV-KIM-08.mp3"
+    },
+    "CV-KIM-09": {
+      "src": "episodes/conviction/audio/voice/CV-KIM-09.ogg",
+      "duration": 0.73,
+      "source": "CV-KIM-09.mp3"
+    },
+    "CV-MAZAR-01": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-01.ogg",
+      "duration": 3.92,
+      "source": "CV-MAZAR-01.mp3"
+    },
+    "CV-MAZAR-02": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-02.ogg",
+      "duration": 5.55,
+      "source": "CV-MAZAR-02.mp3"
+    },
+    "CV-MAZAR-03": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-03.ogg",
+      "duration": 5.36,
+      "source": "CV-MAZAR-03.mp3"
+    },
+    "CV-MAZAR-04": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-04.ogg",
+      "duration": 4.4,
+      "source": "CV-MAZAR-04.mp3"
+    },
+    "CV-MAZAR-05": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-05.ogg",
+      "duration": 3.08,
+      "source": "CV-MAZAR-05.mp3"
+    },
+    "CV-MAZAR-06": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-06.ogg",
+      "duration": 4.47,
+      "source": "CV-MAZAR-06.mp3"
+    },
+    "CV-MAZAR-07": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-07.ogg",
+      "duration": 1.78,
+      "source": "CV-MAZAR-07.mp3"
+    },
+    "CV-MAZAR-08": {
+      "src": "episodes/conviction/audio/voice/CV-MAZAR-08.ogg",
+      "duration": 3.84,
+      "source": "CV-MAZAR-08.mp3"
+    },
+    "CV-NAR-EP": {
+      "src": "episodes/conviction/audio/voice/CV-NAR-EP.ogg",
+      "duration": 4.73,
+      "source": "CV-NAR-EP.mp3"
+    },
+    "CV-NAR-P01": {
+      "src": "episodes/conviction/audio/voice/CV-NAR-P01.ogg",
+      "duration": 7.23,
+      "source": "CV-NAR-P01.mp3"
+    },
+    "CV-NAR-P03": {
+      "src": "episodes/conviction/audio/voice/CV-NAR-P03.ogg",
+      "duration": 7.43,
+      "source": "CV-NAR-P03.mp3"
+    },
+    "CV-NAR-T00": {
+      "src": "episodes/conviction/audio/voice/CV-NAR-T00.ogg",
+      "duration": 2.18,
+      "source": "CV-NAR-T00.mp3"
+    },
+    "CV-NAR-V1": {
+      "src": "episodes/conviction/audio/voice/CV-NAR-V1.ogg",
+      "duration": 5.73,
+      "source": "CV-NAR-V1.mp3"
+    },
+    "CV-YOSHI-01": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-01.ogg",
+      "duration": 8.57,
+      "source": "CV-YOSHI-01.mp3"
+    },
+    "CV-YOSHI-02": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-02.ogg",
+      "duration": 1.75,
+      "source": "CV-YOSHI-02.mp3"
+    },
+    "CV-YOSHI-03": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-03.ogg",
+      "duration": 3.19,
+      "source": "CV-YOSHI-03.mp3"
+    },
+    "CV-YOSHI-04": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-04.ogg",
+      "duration": 3.95,
+      "source": "CV-YOSHI-04.mp3"
+    },
+    "CV-YOSHI-05": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-05.ogg",
+      "duration": 8.12,
+      "source": "CV-YOSHI-05.mp3"
+    },
+    "CV-YOSHI-05-KIM": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-05-KIM.ogg",
+      "duration": 4.39,
+      "source": "CV-YOSHI-05-KIM.mp3"
+    },
+    "CV-YOSHI-05-MAZAR": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-05-MAZAR.ogg",
+      "duration": 4.74,
+      "source": "CV-YOSHI-05-MAZAR.mp3"
+    },
+    "CV-YOSHI-05-YUN": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-05-YUN.ogg",
+      "duration": 4.76,
+      "source": "CV-YOSHI-05-YUN.mp3"
+    },
+    "CV-YOSHI-06": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-06.ogg",
+      "duration": 4.75,
+      "source": "CV-YOSHI-06.mp3"
+    },
+    "CV-YOSHI-07": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-07.ogg",
+      "duration": 11.56,
+      "source": "CV-YOSHI-07.mp3"
+    },
+    "CV-YOSHI-07J": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-07J.ogg",
+      "duration": 3.89,
+      "source": "CV-YOSHI-07J.mp3"
+    },
+    "CV-YOSHI-08": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-08.ogg",
+      "duration": 3.98,
+      "source": "CV-YOSHI-08.mp3"
+    },
+    "CV-YOSHI-09": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-09.ogg",
+      "duration": 3.77,
+      "source": "CV-YOSHI-09.mp3"
+    },
+    "CV-YOSHI-G": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-G.ogg",
+      "duration": 2.34,
+      "source": "CV-YOSHI-G.mp3"
+    },
+    "CV-YOSHI-I": {
+      "src": "episodes/conviction/audio/voice/CV-YOSHI-I.ogg",
+      "duration": 1.68,
+      "source": "CV-YOSHI-I.mp3"
+    },
+    "CV-YUN-01": {
+      "src": "episodes/conviction/audio/voice/CV-YUN-01.ogg",
+      "duration": 3.09,
+      "source": "CV-YUN-01.mp3"
+    },
+    "CV-YUN-02": {
+      "src": "episodes/conviction/audio/voice/CV-YUN-02.ogg",
+      "duration": 6.26,
+      "source": "CV-YUN-02.mp3"
+    },
+    "CV-YUN-03": {
+      "src": "episodes/conviction/audio/voice/CV-YUN-03.ogg",
+      "duration": 6.24,
+      "source": "CV-YUN-03.mp3"
+    },
+    "CV-YUN-04": {
+      "src": "episodes/conviction/audio/voice/CV-YUN-04.ogg",
+      "duration": 1.83,
+      "source": "CV-YUN-04.mp3"
+    }
+  }
+}

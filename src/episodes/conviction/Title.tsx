@@ -1,10 +1,14 @@
 import { BookOpen, DoorOpen, FileText, Flower2, Library, Settings as SettingsIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
 import { APP_VERSION, bridge } from '../../client/bridge';
 import { Settings } from '../../ui/Settings';
 import { SETTING } from './data';
 import { Scene } from './Scene';
+import { music, rain, say } from './sound';
+
+/** 타이틀 낭독은 실행할 때 한 번만 */
+let titleRead = false;
 
 interface Props {
   canResume: boolean;
@@ -17,6 +21,14 @@ interface Props {
 export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Props) {
   const [settings, setSettings] = useState(false);
   const click = (f: () => void) => () => { audio.sfx('paper', 0.6); f(); };
+  useEffect(() => {
+    music('CV-OST01', 2.5);
+    rain(0.5);
+    if (!titleRead) {
+      titleRead = true;
+      say(['CV-NAR-T00'], 1.2);
+    }
+  }, []);
   const menu = [
     { label: '게임 시작', icon: <Flower2 size={20} />, on: onStart, primary: true },
     { label: '이어하기', icon: <BookOpen size={20} />, on: onResume, disabled: !canResume },

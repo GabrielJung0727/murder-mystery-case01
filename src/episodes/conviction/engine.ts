@@ -26,6 +26,10 @@ export interface TrialState {
   sentence: Partial<Record<SuspectId, Plea>>;
   verdict: SuspectId | null;
   ending: EndingId | null;
+  /** 공개 재판에서 묵비권을 쓴 라운드 */
+  silent: Record<SuspectId, number[]>;
+  /** 플레이어의 메모 */
+  notes: string;
   log: string[];
 }
 
@@ -34,6 +38,8 @@ export type TrialAction =
   | { type: 'designate'; suspect: SuspectId }
   | { type: 'sentence'; suspect: SuspectId; plea: Plea }
   | { type: 'verdict'; suspect: SuspectId }
+  | { type: 'silence'; suspect: SuspectId }
+  | { type: 'note'; text: string }
   | { type: 'advance' };
 
 const ROLE_IDS = ROLES.map((r) => r.id);
@@ -72,7 +78,8 @@ export function createTrial(player: RoleId, seed = Date.now()): TrialState {
   const s: TrialState = {
     schema: 1, seed: seed >>> 0, draws: 0, player, phase: 'evidence', round: 1,
     cards: {}, hands: byRole(() => []), picks: byRole(() => 0), bonus: byRole(() => 0),
-    targets: {}, strong: [], sentence: {}, verdict: null, ending: null, log: [],
+    targets: {}, strong: [], sentence: {}, verdict: null, ending: null,
+    silent: { mazar: [], yun: [], kim: [] }, notes: '', log: [],
   };
   startRound(s, 1);
   return s;
@@ -226,6 +233,14 @@ export function applyTrial(prev: TrialState, action: TrialAction): TrialState {
       if (s.phase !== 'verdict') return prev;
       finish(s, action.suspect);
       return s;
+    case 'silence':
+      if (s.phase !== 'trial' || s.silent[action.suspect].includes(s.round)) return prev;
+      s.silent[action.suspect].push(s.round);
+      s.log.push(`묵비권 — ${ROLES.find((r) => r.id === action.suspect)!.name}`);
+      return s;
+    case 'note':
+      s.notes = action.text;
+      return s;
     case 'advance':
       return advance(s) ? s : prev;
   }
@@ -241,6 +256,12 @@ function advance(s: TrialState): boolean {
     case 'secret':
       s.phase = 'trial';
       s.log.push('공개 재판');
+      // 혐의가 무거운 컴퓨터 피고인은 반쯤 묵비권을 쓴다
+      for (const x of SUSPECTS) {
+        if (x === s.player) continue;
+        s.draws += 1;
+        if (suspicion(s, x) >= 2 && rand(s.seed, s.draws) < 0.5) s.silent[x].push(s.round);
+      }
       return true;
     case 'trial':
       // 검사가 NPC면 가장 의심스러운 용의자를 강력 용의자로 지명한다

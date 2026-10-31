@@ -2,13 +2,31 @@ import { ArrowLeft, Gavel, Scale, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
 import { PROLOGUE, ROLES, SETTING, portrait, type RoleId } from './data';
+import { Caption } from './Caption';
 import { Dossier } from './Dossier';
 import { Scene } from './Scene';
+import { ROLE_INTRO, music, rain, say, sfx } from './sound';
 
 /** 프롤로그: 한 줄씩 넘긴다 (클릭·Enter·Space) */
 export function Prologue({ onDone }: { onDone: () => void }) {
   const [n, setN] = useState(1);
   const next = () => (n < PROLOGUE.length ? setN(n + 1) : onDone());
+  useEffect(() => {
+    music('CV-OST02', 2);
+    rain(0.3);
+    return () => audio.stopNarration();
+  }, []);
+  // 줄마다: 첫 줄은 말발굽, '탕' 은 총성과 군중, 나머지는 나레이션 (CV-NAR-P01~P08)
+  useEffect(() => {
+    if (n === 1) sfx('CV-SFX-HOOVES', 0.6);
+    if (PROLOGUE[n - 1].shot) {
+      audio.stopNarration();
+      sfx('CV-SFX-GUNSHOT', 1, true);
+      const t = setTimeout(() => sfx('CV-SFX-CROWD', 0.7), 700);
+      return () => clearTimeout(t);
+    }
+    say([`CV-NAR-P0${n}`], n === 1 ? 0.8 : 0.2);
+  }, [n]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') next();
@@ -36,6 +54,11 @@ export function RoleSelect({ onBack, onPick }: { onBack: () => void; onPick: (ro
   const [sel, setSel] = useState<RoleId>('prosecutor');
   const role = ROLES.find((r) => r.id === sel)!;
   const group = (side: 'suspect' | 'court') => ROLES.filter((r) => r.side === side);
+  useEffect(() => {
+    music('CV-OST01', 2.5);
+    rain(0.25);
+    return () => audio.stopNarration();
+  }, []);
   return (
     <div className="cv cv-roles">
       <Scene dim />
@@ -50,7 +73,7 @@ export function RoleSelect({ onBack, onPick }: { onBack: () => void; onPick: (ro
             <h3>{side === 'suspect' ? <><UserRound size={14} /> 피고인</> : <><Scale size={14} /> 법정</>}</h3>
             <div className="cv-role-row">
               {group(side).map((r) => (
-                <button key={r.id} className={`cv-role ${sel === r.id ? 'on' : ''} ${r.side}`} onClick={() => { audio.sfx('paper', 0.5); setSel(r.id); }}>
+                <button key={r.id} className={`cv-role ${sel === r.id ? 'on' : ''} ${r.side}`} onClick={() => { audio.sfx('paper', 0.5); setSel(r.id); say([ROLE_INTRO[r.id]], 0.15); }}>
                   <img src={portrait(r.id)} alt="" />
                   <b>{r.name}</b>
                   <span>{r.title}</span>
@@ -63,6 +86,7 @@ export function RoleSelect({ onBack, onPick }: { onBack: () => void; onPick: (ro
           <img className="cv-poster" src={portrait(role.id, 'poster')} alt={`${role.name} 인물 포스터`} />
           <Dossier role={role} />
         </div>
+        <Caption />
         <footer className="cv-role-foot">
           <p className="cv-note">나만 아는 정보와 개인 목표는 재판 중 '내 기록'에서 볼 수 있습니다. 나머지 네 사람은 컴퓨터가 맡습니다.</p>
           <button className="cv-stroke primary" onClick={() => onPick(sel)}><Gavel size={18} /><span>재판 시작</span></button>

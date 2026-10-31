@@ -87,6 +87,20 @@ describe('trial flow', () => {
   });
 });
 
+describe('silence and notes', () => {
+  it('lets a defendant stay silent once per public trial and keeps the player’s notes', () => {
+    let s = run(createTrial('kim', 9), 2);
+    expect(s.phase).toBe('trial');
+    s = applyTrial(s, { type: 'silence', suspect: 'kim' });
+    expect(s.silent.kim).toEqual([1]);
+    expect(applyTrial(s, { type: 'silence', suspect: 'kim' })).toBe(s);
+    s = applyTrial(s, { type: 'note', text: '마자르의 사진이 수상하다' });
+    s = applyTrial(s, { type: 'advance' });
+    expect(applyTrial(s, { type: 'silence', suspect: 'kim' })).toBe(s);
+    expect(s.notes).toBe('마자르의 사진이 수상하다');
+  });
+});
+
 describe('personal goals', () => {
   it('judges what the game can see and leaves dialogue-only goals open', () => {
     let s = run(createTrial('yun', 4), 12);
