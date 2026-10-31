@@ -2,8 +2,8 @@
 import { ArrowLeft, KeyRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLES, SETTING, portrait, roleOf, type RoleId } from './data';
-import { cursorVars } from './assets';
-import { Caption } from './Caption';
+import { ASSETS } from './assets';
+import { DialogueBar } from './Caption';
 import { Court } from './Court';
 import { Docket } from './Docket';
 import { Dossier } from './Dossier';
@@ -25,7 +25,7 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
 
   const me = roleOf(s.player);
   return (
-    <div className="cv cv-trial" style={cursorVars()}>
+    <div className="cv cv-trial">
       <Scene dim />
       <header className="cv-bar">
         <button className="cv-back" onClick={onExit}><ArrowLeft size={16} /> 타이틀</button>
@@ -37,10 +37,12 @@ export function Trial({ initial, onExit }: { initial: TrialState; onExit: () => 
       </header>
       <div className="cv-court-grid">
         <aside className="cv-files"><Files s={s} /></aside>
-        <main className="cv-courtroom"><Court s={s} act={act} /></main>
+        <main className="cv-courtroom">
+          <Court s={s} act={act} />
+          <DialogueBar />
+        </main>
         <aside className="cv-docket"><Docket s={s} act={act} /></aside>
       </div>
-      <Caption />
     </div>
   );
 }
@@ -82,6 +84,7 @@ function Files({ s }: { s: TrialState }) {
                 const c = s.cards[id];
                 return (
                   <li key={id} className={`cv-slip ${c.kind} ${c.key ? 'key' : ''}`}>
+                    {ASSETS.evidence[c.id] && <img className="cv-slip-photo" src={ASSETS.evidence[c.id]} alt="" loading="lazy" />}
                     <span className="cv-slip-no">證 {c.id}</span>
                     <span className="cv-slip-tag">{c.key ? <><KeyRound size={11} /> 핵심 증거</> : c.kind === 'innocence' ? '무죄 증거' : '공격 증거'} · {nameOf(c.about)}</span>
                     <b>{c.title}</b>

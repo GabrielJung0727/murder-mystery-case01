@@ -1,9 +1,9 @@
 // 가운데 경성 재판장: 위에 법대(재판관·검사), 아래 피고인석 세 자리.
 // 단계마다 피고인석의 버튼이 바뀐다: 증거 받기 → 묵비권·강력 용의자 지명 → 구형 → 판결.
-import { Gavel, Shield, Swords, VolumeX } from 'lucide-react';
+import { Gavel, Scale, Shield, Swords, VolumeX } from 'lucide-react';
 import { audio } from '../../audio/director';
 import { RULES, SUSPECTS, portrait, roleOf, type SuspectId } from './data';
-import { ASSETS } from './assets';
+import { ASSETS, roomFor } from './assets';
 import { pickBlocked, type Phase, type TrialAction, type TrialState } from './engine';
 
 const CAPTION: Record<Exclude<Phase, 'ending'>, { title: string; text: string }> = {
@@ -17,24 +17,79 @@ const CAPTION: Record<Exclude<Phase, 'ending'>, { title: string; text: string }>
 
 export function Court({ s, act }: { s: TrialState; act: (a: TrialAction) => void }) {
   const cap = CAPTION[s.phase as Exclude<Phase, 'ending'>];
+  const room = roomFor(s.phase, s.player === 'judge' || s.player === 'prosecutor');
   const round = s.phase === 'evidence' || s.phase === 'secret' || s.phase === 'trial' ? `제${s.round}라운드` : '최종 재판';
+  const hint = boardHint(s);
   return (
-    <div className={`cv-room phase-${s.phase}`} style={ASSETS.court ? { backgroundImage: `url(${ASSETS.court})` } : undefined}>
+    <div className={`cv-room phase-${s.phase} ${room ? 'pictured' : ''}`} style={room ? { backgroundImage: `linear-gradient(rgba(12, 7, 4, .45), rgba(12, 7, 4, .8)), url(${room})` } : undefined}>
       <div className="cv-bench">
+        <div className="cv-bench-emblem" aria-hidden><Scale size={16} /></div>
         <Officer id="prosecutor" label="檢事" s={s} />
-        <Officer id="judge" label="裁判官" s={s} high />
-        <div className="cv-bench-emblem" aria-hidden />
+        <Officer id="judge" label="裁判長" s={s} high />
       </div>
+      {/* 법대와 피고인석 사이: 지금 단계와 내가 할 일을 알리는 공판 상황판 */}
       <div className="cv-floor">
-        <span className="cv-floor-round">{round}</span>
-        <h2 key={`${s.phase}${s.round}`}>{cap.title}</h2>
-        <p>{cap.text}</p>
+        <div className="cv-board">
+          <span className="cv-board-round"><Gavel size={12} /> {round}</span>
+          <h2 key={`${s.phase}${s.round}`}>{cap.title}</h2>
+          <p>{cap.text}</p>
+          {hint && (
+            <div className={`cv-board-hint ${hint.done ? 'done' : ''}`}>
+              {hint.token && <span className="cv-board-token">{hint.token}</span>}
+              <span>{hint.text}</span>
+            </div>
+          )}
+        </div>
       </div>
       <div className="cv-dock">
-        {SUSPECTS.map((x) => <Seat key={x} who={x} s={s} act={act} />)}
+        {SUSPECTS.map((x, i) => <Seat key={x} who={x} no={i} s={s} act={act} />)}
       </div>
     </div>
   );
+}
+
+/** 상황판 아래줄: 남은 선택과 다음에 누를 곳 (플레이어가 할 일이 없으면 null) */
+function boardHint(s: TrialState): { token?: string; text: string; done?: boolean } | null {
+  const me = s.player;
+  switch (s.phase) {
+    case 'evidence': {
+      const left = s.picks[me] + s.bonus[me];
+      return left > 0
+        ? { token: `남은 선택 ${left}`, text: '↓ 피고인석에서 증거를 받으십시오' }
+        : { token: '선택 끝', text: '✓ 이번 라운드 증거를 모두 받았습니다 · 오른쪽 [배분 마치기]', done: true };
+    }
+    case 'trial':
+      if (me === 'prosecutor') {
+        return s.strong[s.round - 1]
+          ? { text: '✓ 강력 용의자를 지명했습니다', done: true }
+          : { text: '↓ 강력 용의자로 지명할 피고인을 고를 수 있습니다' };
+      }
+      if ((SUSPECTS as string[]).includes(me)) return { text: '내 자리의 [묵비권]으로 대답을 거부할 수 있습니다' };
+      return null;
+    case 'sentence': {
+      if (me !== 'prosecutor') return null;
+      const n = SUSPECTS.filter((x) => s.sentence[x]).length;
+      return n < SUSPECTS.length
+        ? { token: `구형 ${n}/${SUSPECTS.length}`, text: '↓ 피고인마다 유죄 · 무죄를 구형하십시오' }
+        : { token: `구형 ${n}/${SUSPECTS.length}`, text: '✓ 오른쪽 [판결로]', done: true };
+    }
+    case 'verdict':
+      return me === 'judge' ? { text: '↓ 유죄를 선고할 한 사람을 고르십시오' } : null;
+    default:
+      return null;
+  }
+}
+
+/** 이 피고인석에서 지금 플레이어가 할 수 있는 일이 있는가 (붉은 인장 강조) */
+function canAct(s: TrialState, who: SuspectId): boolean {
+  const me = s.player;
+  if (s.phase === 'evidence') {
+    const kind = me === who ? 'innocence' : 'attack';
+    return ((SUSPECTS as string[]).includes(me) || kind === 'attack') && !pickBlocked(s, me, kind, who);
+  }
+  if (s.phase === 'trial') return me === 'prosecutor' && !s.strong[s.round - 1];
+  if (s.phase === 'sentence') return me === 'prosecutor' && !s.sentence[who];
+  return s.phase === 'verdict' && me === 'judge';
 }
 
 function Officer({ id, label, s, high }: { id: 'judge' | 'prosecutor'; label: string; s: TrialState; high?: boolean }) {
@@ -48,7 +103,9 @@ function Officer({ id, label, s, high }: { id: 'judge' | 'prosecutor'; label: st
   );
 }
 
-function Seat({ who, s, act }: { who: SuspectId; s: TrialState; act: (a: TrialAction) => void }) {
+const SEAT_NO = ['壹', '貳', '參'];
+
+function Seat({ who, no, s, act }: { who: SuspectId; no: number; s: TrialState; act: (a: TrialAction) => void }) {
   const r = roleOf(who);
   const me = s.player === who;
   const strongRounds = s.strong.map((x, i) => (x === who ? i + 1 : 0)).filter(Boolean);
@@ -56,22 +113,31 @@ function Seat({ who, s, act }: { who: SuspectId; s: TrialState; act: (a: TrialAc
   const silentNow = s.phase === 'trial' && s.silent[who].includes(s.round);
   const plea = s.phase === 'sentence' || s.phase === 'verdict' ? s.sentence[who] : undefined;
   const showPlea = plea && (s.phase === 'verdict' || s.player === 'prosecutor');
+  const targeted = s.phase === 'evidence' && s.targets[s.player] === who;
 
   return (
-    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''}`}>
-      <div className="cv-seat-face">
-        <img src={portrait(who)} alt="" />
-        {silentNow && <span className="cv-silent"><VolumeX size={12} /> 묵비권</span>}
-        {strongNow && <Stamp kind="strong" />}
-        {showPlea && <Stamp kind={plea === 'guilty' ? 'guilty' : 'innocent'} key={plea} />}
+    <div className={`cv-seat ${me ? 'me' : ''} ${strongNow ? 'strong' : ''} ${canAct(s, who) ? 'cta' : ''} ${targeted ? 'targeted' : ''}`}>
+      <div className="cv-seat-tag">
+        <span>被告人 {SEAT_NO[no]}</span>
+        {targeted && <em>지목</em>}
+        {strongRounds.length > 0 && (
+          <span className="cv-seat-marks" title="강력 용의자로 지명된 라운드">
+            {strongRounds.map((n) => <i key={n}>{n}</i>)}
+          </span>
+        )}
       </div>
-      <span className="cv-plate"><small>被告人</small>{r.name}{me && <em>나</em>}</span>
-      <span className="cv-seat-sub">{r.title}</span>
-      {strongRounds.length > 0 && (
-        <span className="cv-seat-marks" title="강력 용의자로 지명된 라운드">
-          {strongRounds.map((n) => <i key={n}>{n}</i>)}
-        </span>
-      )}
+      <div className="cv-seat-main">
+        <div className="cv-seat-face">
+          <img src={portrait(who)} alt="" />
+          {silentNow && <span className="cv-silent"><VolumeX size={12} /> 묵비권</span>}
+          {strongNow && <Stamp kind="strong" />}
+          {showPlea && <Stamp kind={plea === 'guilty' ? 'guilty' : 'innocent'} key={plea} />}
+        </div>
+        <div className="cv-seat-id">
+          <span className="cv-plate"><small>被告人</small>{r.name}{me && <em>나</em>}</span>
+          <span className="cv-seat-sub">{r.title}</span>
+        </div>
+      </div>
       <div className="cv-seat-actions"><SeatActions who={who} s={s} act={act} /></div>
     </div>
   );

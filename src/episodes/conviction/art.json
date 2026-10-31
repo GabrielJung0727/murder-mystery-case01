@@ -1,0 +1,56 @@
+{
+  "scenes": {
+    "CV-BG-BENCH": "episodes/conviction/art/scenes/bg-bench.webp",
+    "CV-BG-COURT": "episodes/conviction/art/scenes/bg-court.webp",
+    "CV-BG-DOCK": "episodes/conviction/art/scenes/bg-dock.webp",
+    "CV-BG-EVIDENCE": "episodes/conviction/art/scenes/bg-evidence.webp",
+    "CV-BG-INTERVIEW": "episodes/conviction/art/scenes/bg-interview.webp",
+    "CV-CUT-P1": "episodes/conviction/art/scenes/cut-p1.webp",
+    "CV-CUT-P2": "episodes/conviction/art/scenes/cut-p2.webp",
+    "CV-CUT-P3": "episodes/conviction/art/scenes/cut-p3.webp",
+    "CV-CUT-P4": "episodes/conviction/art/scenes/cut-p4.webp",
+    "CV-END-E1": "episodes/conviction/art/scenes/end-e1.webp",
+    "CV-END-E2": "episodes/conviction/art/scenes/end-e2.webp",
+    "CV-END-E3": "episodes/conviction/art/scenes/end-e3.webp",
+    "CV-END-E4": "episodes/conviction/art/scenes/end-e4.webp",
+    "CV-END-E5": "episodes/conviction/art/scenes/end-e5.webp",
+    "CV-END-E6": "episodes/conviction/art/scenes/end-e6.webp",
+    "CV-END-EP": "episodes/conviction/art/scenes/end-ep.webp"
+  },
+  "evidence": {
+    "KA1": "episodes/conviction/art/evidence/KA1.webp",
+    "KA3": "episodes/conviction/art/evidence/KA3.webp",
+    "KA5": "episodes/conviction/art/evidence/KA5.webp",
+    "MA1": "episodes/conviction/art/evidence/MA1.webp",
+    "MI1": "episodes/conviction/art/evidence/MI1.webp",
+    "MI6": "episodes/conviction/art/evidence/MI6.webp",
+    "YA1": "episodes/conviction/art/evidence/YA1.webp",
+    "YA6": "episodes/conviction/art/evidence/YA6.webp",
+    "YA7": "episodes/conviction/art/evidence/YA7.webp",
+    "YI2": "episodes/conviction/art/evidence/YI2.webp"
+  },
+  "stamps": {
+    "guilty": "episodes/conviction/art/stamps/guilty.webp",
+    "innocent": "episodes/conviction/art/stamps/innocent.webp",
+    "strong": "episodes/conviction/art/stamps/strong.webp"
+  },
+  "cursors": {
+    "default": {
+      "src": "episodes/conviction/art/cursors/default.png",
+      "x": 0,
+      "y": 0
+    },
+    "disabled": {
+      "src": "episodes/conviction/art/cursors/disabled.png",
+      "x": 16,
+      "y": 16
+    },
+    "pointer": {
+      "src": "episodes/conviction/art/cursors/pointer.png",
+      "x": 0,
+      "y": 0
+    }
+  },
+  "logo": "episodes/conviction/art/logo.webp",
+  "cover": "episodes/conviction/art/cover.webp"
+}

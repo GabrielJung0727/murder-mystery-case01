@@ -13,11 +13,13 @@ const PETALS = Array.from({ length: 18 }, (_, i) => ({
   size: 8 + (i % 4) * 3,
 }));
 
-export function Scene({ dim }: { dim?: boolean }) {
+/** art 를 주면 거리 그림 대신 그 그림을 깐다 (프롤로그 컷, 에필로그). soft 는 덜 어둡게 */
+export function Scene({ dim, art }: { dim?: boolean | 'soft'; art?: string }) {
   const { effects } = useSyncExternalStore(display.subscribe, display.get);
   return (
-    <div className={`cv-scene ${dim ? 'dim' : ''}`} aria-hidden>
-      <div className="cv-art" style={{ backgroundImage: `url(${KEY_ART})` }} />
+    <div className={`cv-scene ${dim === 'soft' ? 'dim soft' : dim ? 'dim' : ''}`} aria-hidden>
+      {/* 그림이 바뀌면 새로 그려 천천히 떠오르게 한다 */}
+      <div className={`cv-art ${art ? 'cut' : ''}`} key={art ?? KEY_ART} style={{ backgroundImage: `url(${art ?? KEY_ART})` }} />
       {effects && (
         <div className="cv-petals">
           {PETALS.map((p, i) => <span key={i} style={{ left: p.left, width: p.size, height: p.size * 0.7, animationDelay: p.delay, animationDuration: p.duration }} />)}

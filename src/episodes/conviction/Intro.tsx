@@ -4,6 +4,7 @@ import { audio } from '../../audio/director';
 import { PROLOGUE, ROLES, SETTING, portrait, type RoleId } from './data';
 import { Caption } from './Caption';
 import { Dossier } from './Dossier';
+import { cutFor } from './assets';
 import { Scene } from './Scene';
 import { ROLE_INTRO, music, rain, say, sfx } from './sound';
 
@@ -37,7 +38,7 @@ export function Prologue({ onDone }: { onDone: () => void }) {
   });
   return (
     <div className="cv cv-prologue" onClick={next}>
-      <Scene dim />
+      <Scene dim="soft" art={cutFor(n)} />
       <div className="cv-prologue-text">
         <span className="cv-kicker">{SETTING.caseNo} · 사건 개요 · {SETTING.date}</span>
         {/* 화면에는 최근 네 줄만 남긴다 */}

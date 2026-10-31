@@ -1,9 +1,10 @@
-import { BookOpen, DoorOpen, FileText, Flower2, Library, Settings as SettingsIcon } from 'lucide-react';
+import { Award, BookOpen, DoorOpen, FileText, Flower2, Library, Settings as SettingsIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
 import { APP_VERSION, bridge } from '../../client/bridge';
 import { Settings } from '../../ui/Settings';
 import { SETTING } from './data';
+import { ASSETS } from './assets';
 import { Scene } from './Scene';
 import { music, rain, say } from './sound';
 
@@ -15,10 +16,11 @@ interface Props {
   onStart: () => void;
   onResume: () => void;
   onPrologue: () => void;
+  onRecords: () => void;
   onShelf: () => void;
 }
 
-export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Props) {
+export function Title({ canResume, onStart, onResume, onPrologue, onRecords, onShelf }: Props) {
   const [settings, setSettings] = useState(false);
   const click = (f: () => void) => () => { audio.sfx('paper', 0.6); f(); };
   useEffect(() => {
@@ -33,6 +35,7 @@ export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Pro
     { label: '게임 시작', icon: <Flower2 size={20} />, on: onStart, primary: true },
     { label: '이어하기', icon: <BookOpen size={20} />, on: onResume, disabled: !canResume },
     { label: '프롤로그', icon: <FileText size={20} />, on: onPrologue },
+    { label: '기록', icon: <Award size={20} />, on: onRecords },
     { label: '설정', icon: <SettingsIcon size={20} />, on: () => setSettings(true) },
     { label: '도서관으로', icon: <Library size={20} />, on: onShelf },
     ...(bridge ? [{ label: '게임 종료', icon: <DoorOpen size={20} />, on: () => { if (window.confirm('게임을 종료할까요?')) void bridge?.quit(); } }] : []),
@@ -52,10 +55,14 @@ export function Title({ canResume, onStart, onResume, onPrologue, onShelf }: Pro
         {SETTING.place.map((p) => <span key={p}>{p}</span>)}
       </div>
       <header className="cv-head">
-        <h1 className="cv-title">
-          흔들리지 않는 <em>신념<Splash /></em>으로
-        </h1>
-        <p className="cv-act"><i />{SETTING.act}<i /></p>
+        {ASSETS.logo ? (
+          <h1 className="cv-title cv-logo"><img src={ASSETS.logo} alt="흔들리지 않는 신념으로" /></h1>
+        ) : (
+          <h1 className="cv-title">
+            흔들리지 않는 <em>신념<Splash /></em>으로
+          </h1>
+        )}
+        <p className="cv-act-line"><i />{SETTING.act}<i /></p>
       </header>
       <nav className="cv-menu">
         {menu.map((m) => (

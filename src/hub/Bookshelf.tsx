@@ -217,10 +217,11 @@ export function Bookshelf({ onOpen }: { onOpen: (ep: Episode) => void }) {
 
         <section
           key={slot.id}
-          className={`brief ${slot.sealed ? 'sealed' : ''} ${slot.mood === 'blood' ? 'blood' : ''}`}
+          className={`brief ${slot.sealed ? 'sealed' : ''} ${slot.mood === 'blood' ? 'blood' : ''} ${slot.art ? 'has-art' : ''}`}
           style={{ '--base': slot.cover.base, '--edge': slot.cover.edge, '--ink': slot.cover.ink } as React.CSSProperties}
         >
           {slot.mood === 'blood' && <Splatter />}
+          {slot.art && <img className="brief-art" src={slot.art} alt={`${slot.title} 표지`} />}
           <div className="brief-face">
             <span className="brief-tag">EPISODE {epNo(slot.no)} · {slot.tagline}</span>
             <h2>{slot.title}</h2>

@@ -121,6 +121,9 @@
 .brief .splat { position: absolute; right: 10px; top: 6px; width: 190px; height: 126px; opacity: .55; pointer-events: none; }
 .brief > :not(.splat) { position: relative; z-index: 1; }
 @keyframes brief-in { from { opacity: 0; transform: translateY(8px); } }
+/* 표지 그림이 있는 에피소드: 왼쪽에 책 표지 */
+.brief.has-art { grid-template-columns: auto 1fr auto; }
+.brief-art { width: 92px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 2px 4px 4px 2px; box-shadow: 0 10px 22px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .08); transform: rotate(-2deg); }
 .brief-face { display: flex; flex-direction: column; gap: 9px; text-align: left; }
 .brief-tag { font-family: var(--type); font-size: 11px; letter-spacing: .22em; color: #d49a7d; }
 .brief.sealed .brief-tag { color: #7c7064; }
@@ -146,7 +149,8 @@
   .book3d:nth-child(n+7), .case-lip span:nth-child(n+7) { display: none; }
   .plaque { letter-spacing: .15em; }
   .hub-head h1 { font-size: 30px; }
-  .brief { grid-template-columns: 1fr; }
+  .brief, .brief.has-art { grid-template-columns: 1fr; }
+  .brief-art { display: none; }
   .brief-side { align-items: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {

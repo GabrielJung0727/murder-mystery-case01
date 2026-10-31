@@ -26,8 +26,8 @@ const TITLES: Record<string, [string, string]> = {
   'CV-OST09': ['에필로그', 'Epilogue'],
 };
 
-/** 화면 아래 자막으로 띄우는 인물 대사 (나레이션은 화면 글과 같아 띄우지 않는다) */
-export const LINES: Record<string, { who: RoleId; text: string }> = {
+/** 자막으로 띄우는 인물 대사. orig 는 일본어·헝가리어 원문 (text 는 우리말). 나레이션은 화면 글과 같아 띄우지 않는다 */
+export const LINES: Record<string, { who: RoleId; text: string; orig?: string }> = {
   'CV-HASEDA-01': { who: 'judge', text: '지금부터 조선 총독 암살 미수 사건의 재판을 시작하겠소. 개정.' },
   'CV-HASEDA-02': { who: 'judge', text: '정숙. 법정에서는 묻는 말에만 답하시오.' },
   'CV-HASEDA-03': { who: 'judge', text: '피고인, 묵비권을 행사하겠소? …좋소. 기록하시오.' },
@@ -36,7 +36,7 @@ export const LINES: Record<string, { who: RoleId; text: string }> = {
   'CV-HASEDA-V-KIM': { who: 'judge', text: '피고인 김익상에게 유죄를 선고한다.' },
   'CV-HASEDA-V-YUN': { who: 'judge', text: '피고인 윤치형에게 유죄를 선고한다.' },
   'CV-HASEDA-V-MAZAR': { who: 'judge', text: '피고인 초머 마자르에게 유죄를 선고한다.' },
-  'CV-HASEDA-VJ': { who: 'judge', text: '被告人を有罪とする。(피고인을 유죄로 한다.)' },
+  'CV-HASEDA-VJ': { who: 'judge', orig: '被告人を有罪とする。', text: '피고인을 유죄로 한다.' },
   'CV-HASEDA-06': { who: 'judge', text: '이것으로 폐정한다.' },
   'CV-HASEDA-07': { who: 'judge', text: '…이 이름은. 설마, 자네였나.' },
   'CV-HASEDA-08': { who: 'judge', text: '…미안하네. 친구.' },
@@ -54,7 +54,7 @@ export const LINES: Record<string, { who: RoleId; text: string }> = {
   'CV-YOSHI-07': { who: 'prosecutor', text: '지금부터 공개 재판을 선언합니다. 본 검사는 수집한 증거와 진술을 종합하여 구형하겠습니다.' },
   'CV-YOSHI-G': { who: 'prosecutor', text: '유죄를 구형합니다.' },
   'CV-YOSHI-I': { who: 'prosecutor', text: '무죄를 구형합니다.' },
-  'CV-YOSHI-07J': { who: 'prosecutor', text: '検察官として、有罪を求刑いたします。(검사로서 유죄를 구형합니다.)' },
+  'CV-YOSHI-07J': { who: 'prosecutor', orig: '検察官として、有罪を求刑いたします。', text: '검사로서 유죄를 구형합니다.' },
   'CV-YOSHI-08': { who: 'prosecutor', text: '…조선어로 꿈을 꾼 게 언제였더라.' },
   'CV-YOSHI-09': { who: 'prosecutor', text: '위에서 뭐라 하든, 저는 공정하게 하겠습니다.' },
   'CV-KIM-01': { who: 'kim', text: '김익상. 교사입니다.' },
@@ -72,7 +72,7 @@ export const LINES: Record<string, { who: RoleId; text: string }> = {
   'CV-MAZAR-04': { who: 'mazar', text: '…묵비권. 맞습니까, 이 말? 그것을 쓰겠습니다.' },
   'CV-MAZAR-05': { who: 'mazar', text: '이것은… 불공정합니다.' },
   'CV-MAZAR-06': { who: 'mazar', text: '고맙습니다. 세상은 이 재판을 기억할 겁니다.' },
-  'CV-MAZAR-07': { who: 'mazar', text: 'Éljen a szabad Korea! (자유 대한 만세!)' },
+  'CV-MAZAR-07': { who: 'mazar', orig: 'Éljen a szabad Korea!', text: '자유 대한 만세!' },
   'CV-MAZAR-08': { who: 'mazar', text: '김원봉… 아직 끝나지 않았어.' },
   'CV-YUN-01': { who: 'yun', text: '장사꾼 윤치형이올시다.' },
   'CV-YUN-02': { who: 'yun', text: '그 자리에 있었던 것뿐이오. 장사하던 사람이 좌판을 정리하는 게 죄요?' },

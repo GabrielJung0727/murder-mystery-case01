@@ -19,6 +19,8 @@ export interface Episode {
   meta: string[];
   /** 표지·책등 색 */
   cover: { base: string; edge: string; ink: string };
+  /** 브리핑에 함께 보이는 표지 그림 (문서 기준 상대 경로) */
+  art?: string;
   /** 고를 때의 연출. blood: 책등에 핏물이 흐르고 브리핑에 혈흔이 번진다 */
   mood?: 'blood';
   /** 없으면 '집필 중'으로 꽂혀만 있다 */
@@ -47,6 +49,7 @@ export const EPISODES: Episode[] = [
     blurb: '1920년 12월 16일, 경성. 조선 총독을 향한 단 한 발의 총성. 암살 미수 혐의로 기소된 세 사람의 재판이 열린다.',
     meta: ['혼자 하기', '재판 3라운드', '엔딩 6'],
     cover: { base: '#1d2f4a', edge: '#0d1626', ink: '#d9dfe8' },
+    art: 'episodes/conviction/art/cover.webp',
     Root: lazy(() => import('../episodes/conviction/App').then((m) => ({ default: m.App }))),
   },
 ];

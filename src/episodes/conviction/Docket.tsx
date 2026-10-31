@@ -39,6 +39,8 @@ export function Docket({ s, act }: { s: TrialState; act: (a: TrialAction) => voi
     return a < b ? 'done' : a === b ? 'on' : '';
   };
   const blocked = sentenceBlocked(s);
+  // 이번 단계에서 할 일을 다 했으면 법봉 버튼이 붉게 빛나 다음으로 넘기라고 알린다
+  const ready = s.phase === 'evidence' ? s.picks[s.player] + s.bonus[s.player] === 0 : s.phase === 'sentence' && s.player === 'prosecutor';
   const waitsForJudge = s.phase === 'verdict' && s.player === 'judge';
   const label = s.phase === 'trial' ? (s.round < RULES.rounds ? '다음 라운드로' : '최종 재판으로') : NEXT_LABEL[s.phase] ?? '다음';
 
@@ -74,7 +76,7 @@ export function Docket({ s, act }: { s: TrialState; act: (a: TrialAction) => voi
       {blocked && <p className="cv-warn">{blocked}</p>}
       {waitsForJudge && <p className="cv-warn">피고인석에서 유죄를 선고할 한 사람을 고르세요.</p>}
       {!blocked && !waitsForJudge && (
-        <button className="cv-gavel" onClick={() => act({ type: 'advance' })}>
+        <button className={`cv-gavel ${ready ? 'ready' : ''}`} onClick={() => act({ type: 'advance' })}>
           <Gavel size={18} /> {label}
         </button>
       )}

@@ -1,18 +1,21 @@
 // 엔딩 화면 (전체 화면): 엔딩 일러스트 자리, 판결 인장, 엔딩집 본문, 핵심 증거, 개인 목표, 공통 에필로그
-import { Check, KeyRound, Minus, X } from 'lucide-react';
+import { Award, Check, KeyRound, Minus, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { audio } from '../../audio/director';
 import { CLOSING, ENDINGS, KEY_ITEMS, roleOf, type KeyItem } from './data';
-import { ASSETS, cursorVars } from './assets';
+import { ASSETS } from './assets';
 import { found, goalResults, type TrialState } from './engine';
 import { Caption } from './Caption';
+import { ACHIEVEMENTS, records } from './records';
 import { Scene } from './Scene';
 import { endingSteps, endingTrack, music, playSteps, say } from './sound';
 
 export function EndingView({ s, onExit }: { s: TrialState; onExit: () => void }) {
   const e = ENDINGS[s.ending!];
-  const art = ASSETS.endings[s.ending!];
   const [epilogue, setEpilogue] = useState(false);
+  const art = epilogue ? ASSETS.endings.EP ?? ASSETS.endings[s.ending!] : ASSETS.endings[s.ending!];
+  // 이 판을 기록에 반영하고 새로 달성한 도전 과제를 받는다 (한 판에 한 번)
+  const [unlocked] = useState(() => records.finish(s));
   // 판결 선고 → 엔딩마다 다른 소리 → 엔딩 낭독. 에필로그에서는 맺음말 곡과 낭독
   useEffect(() => {
     if (epilogue) {
@@ -25,8 +28,8 @@ export function EndingView({ s, onExit }: { s: TrialState; onExit: () => void })
   }, [epilogue, s.ending, s.verdict]);
 
   return (
-    <div className="cv cv-end" style={cursorVars()}>
-      {art ? <div className="cv-end-art" style={{ backgroundImage: `url(${art})` }} /> : <Scene dim />}
+    <div className={`cv cv-end ${epilogue ? 'epilogue' : ''}`}>
+      {art ? <div className="cv-end-art" key={art} style={{ backgroundImage: `url(${art})` }} /> : <Scene dim />}
       <div className="cv-end-shade" />
       {epilogue ? (
         <div className="cv-end-epilogue" onClick={onExit}>
@@ -58,6 +61,16 @@ export function EndingView({ s, onExit }: { s: TrialState; onExit: () => void })
               </ul>
             </section>
           </div>
+          {unlocked.length > 0 && (
+            <section className="cv-achv-new">
+              <h3><Award size={14} /> 새로 달성한 도전 과제</h3>
+              <ul>
+                {ACHIEVEMENTS.filter((a) => unlocked.includes(a.id)).map((a) => (
+                  <li key={a.id}><b>{a.title}</b><span>{a.desc}</span></li>
+                ))}
+              </ul>
+            </section>
+          )}
           <div className="cv-end-actions">
             <button className="cv-stroke primary" onClick={() => setEpilogue(true)}><span>에필로그</span></button>
             <button className="cv-back" onClick={onExit}>타이틀로</button>

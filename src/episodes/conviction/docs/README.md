@@ -35,10 +35,13 @@
 | `Court.tsx` | 가운데 법정: 법대(재판관·검사), 피고인석 3자리와 단계별 버튼(증거 받기·묵비권·강력 용의자 지명·구형·판결), 인장 |
 | `Docket.tsx` | 오른쪽 공판 기록: 진행 순서, 단계 규칙, 남은 시간, 밀담 채널, 1:1 최후 질의 호출, 메모, 다음 단계 |
 | `EndingView.tsx` | 엔딩 전체 화면: 판결 인장, 엔딩집 본문, 핵심 증거, 개인 목표, 에필로그 |
-| `assets.ts` | 에셋 자리 (법정 배경, 엔딩 일러스트, 도장, 마우스 커서). 파일이 오면 경로만 채운다 |
+| `assets.ts` | 그림 자리: 단계별 재판 장소, 프롤로그 컷, 엔딩 일러스트, 도장, 증거 사진, 커서, 로고, 표지 (`art.json` 에서 읽는다) |
+| `art.json` | 변환한 그림 목록 (`scripts/prepare_conviction_art.py <그림 폴더>` 가 만든다. 커서 끝점 포함) |
 | `sound.ts` | 소리: 화면·단계별 곡, 빗소리, 상태 변화마다 울릴 대사와 효과음(`trialCue`), 엔딩 소리 순서, 자막용 대사 문장 |
 | `audio.json` | 변환한 음악·효과음·보이스 목록 (`scripts/prepare_conviction_audio.py` 가 만든다) |
 | `Caption.tsx` | 인물 대사 자막 |
+| `records.ts` | 도전 과제 13개와 기록 저장 (`conviction.records`: 본 엔딩, 마친 역할, 달성 시각) |
+| `RecordsView.tsx` | 타이틀 [기록] 화면: 판결 6개, 선 자리 5개, 도전 과제 |
 | `Scene.tsx` | 배경 그림과 꽃잎 |
 | `save.ts` | 이어하기 저장 (`conviction.save`) |
 | `conviction.css` | 이 에피소드 전용 스타일 |
@@ -47,6 +50,20 @@
 
 인물 그림: 이 폴더의 `*.png` 포스터 5장(저장소에는 올리지 않음)을 줄여 `public/episodes/conviction/portraits/` 에 넣었다.
 `{역할}.webp` 는 포스터(배역 고르기), `{역할}-face.webp` 는 얼굴 부분(인물 파일). 역할: judge, prosecutor, kim, mazar, yun.
+
+## 그림
+
+`python scripts/prepare_conviction_art.py <그림 폴더>` — CV- 로 시작하는 그림만 변환해 `art.json` 에 덧붙인다.
+
+| 그림 | 쓰는 곳 |
+|---|---|
+| CV-BG-EVIDENCE / BENCH · DOCK / COURT / INTERVIEW | 증거 배분 / 비밀 대화 (내가 앉은 쪽) / 공개 재판 · 구형 · 판결 / 최후 질의 |
+| CV-CUT-P1~P4 | 프롤로그 1~3줄 / 총성 / 사라진 범인 / 6줄부터 |
+| CV-END-E1~E6, EP | 엔딩 화면, 에필로그 |
+| CV-ICON-STRONG, GUILTY | 도장. INNOCENT 는 그림 속 두 글자가 뭉쳐 글자 도장을 쓴다 (`assets.ts`) |
+| CV-EV-* | 증거 쪽지 위 사진 (카드 번호가 같은 것) |
+| CV-CUR-DEFAULT, POINTER, DISABLED | 에피소드 전체 커서 (나머지 커서는 기본 커서) |
+| CV-LOGO, CV-COVER | 타이틀 로고, 공작소 도서관 브리핑의 표지 |
 
 ## 소리
 
