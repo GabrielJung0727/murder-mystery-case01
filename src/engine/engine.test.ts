@@ -4,7 +4,8 @@ import { CHAR_IDS } from '../data/characters';
 import { NPC_SCRIPTS } from '../data/npcScripts';
 import type { CardId, CharId } from '../data/types';
 import { applyAction, canSee, claimSeat, createOnlineGame, createSingleGame, reclaimSeat, releaseSeat, viewFor } from './engine';
-import { decideEnding } from './scoring';
+import { caseOf } from '../data/caseData';
+import { decideEnding, decideSoloEnding } from './scoring';
 import type { GameState, Report, SeatId } from './types';
 
 const CORRECT: Report = { culprit: 'seonbin', motive: 'resign', time: 't2', method: 'push', evidence: ['14', '31', '34'] };
@@ -109,6 +110,31 @@ describe('ending decision', () => {
     expect(decideEnding(t({ seonbin: 2, jaegu: 1, arin: 1, yeojin: 1 }), 5, 'seonbin').ending).toBe('B');
     expect(decideEnding(t({ jaegu: 3, seonbin: 2 }), 5, 'seonbin').ending).toBe('C');
     expect(decideEnding(t({ jaegu: 2, seonbin: 2, arin: 1 }), 5, 'seonbin').ending).toBe('D');
+  });
+});
+
+describe('solo ending decision', () => {
+  const data = caseOf(createSingleGame('detective', 1));
+  const room = (c: CharId): CharId[] => [c, c, c, 'jaegu', 'arin'];
+  it('A only when proven and the NPCs agree', () => {
+    expect(decideSoloEnding(CORRECT, room('seonbin'), data)).toBe('A');
+  });
+  it('B when the culprit is named but the proof is short', () => {
+    expect(decideSoloEnding({ ...CORRECT, time: 't1' }, room('seonbin'), data)).toBe('B');
+    expect(decideSoloEnding({ ...CORRECT, evidence: ['14'] }, room('seonbin'), data)).toBe('B');
+  });
+  it('C when the player and the NPCs are both wrong', () => {
+    expect(decideSoloEnding({ ...CORRECT, culprit: 'jaegu' }, room('seongcheol'), data)).toBe('C');
+  });
+  it('D when the player and the NPCs split', () => {
+    expect(decideSoloEnding(CORRECT, room('seongcheol'), data)).toBe('D');
+    expect(decideSoloEnding({ ...CORRECT, culprit: 'jaegu' }, room('seonbin'), data)).toBe('D');
+  });
+  it('a wrong pick never reaches A, even when the NPCs carry the vote', () => {
+    let s = reveal(createSingleGame('detective', 9), '14', '31', '34');
+    s = { ...s, phase: 'final', round: 3 };
+    s = applyAction(s, { type: 'submit', seat: 'detective', report: { ...CORRECT, culprit: 'jaegu' } });
+    expect(s.result?.ending).toBe('D');
   });
 });
 

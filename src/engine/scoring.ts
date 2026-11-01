@@ -26,6 +26,25 @@ export function decideEnding(tally: Record<CharId, number>, voters: number, culp
 }
 
 /**
+ * 싱글 엔딩. 싱글은 플레이어 한 표에 NPC 표가 증거 공개·자백에 따라 한꺼번에 움직여,
+ * 득표만으로는 B·D가 거의 나오지 않는다. 그래서 플레이어의 보고서와 NPC 다수 의견을 함께 본다.
+ * - A 진범 지목 + 시각·수법 + 핵심 증거 2장 이상을 모두 맞히고, NPC 다수도 진범을 지목
+ * - B 진범은 지목했지만 시각·수법이나 핵심 증거가 모자람 (입증 미흡)
+ * - C 플레이어도 NPC 다수도 진범이 아닌 사람을 지목
+ * - D 플레이어와 NPC 다수가 엇갈림: 끝까지 입증하고도 NPC를 설득하지 못했거나, NPC는 진범을 짚었는데 나는 틀림
+ */
+export function decideSoloEnding(report: Report | undefined, npcVotes: CharId[], data: CaseData): EndingId {
+  const p = scoreReport(report, data);
+  const count = (c: CharId) => npcVotes.filter((v) => v === c).length;
+  const max = Math.max(...CHAR_IDS.map(count));
+  const top = CHAR_IDS.filter((c) => count(c) === max);
+  const roomRight = top.length === 1 && top[0] === data.culprit;
+  if (p.culprit === 0) return roomRight ? 'D' : 'C';
+  if (!p.timeMethod || !p.evidence) return 'B';
+  return roomRight ? 'A' : 'D';
+}
+
+/**
  * 판 결과 랭크.
  * - 수사하는 쪽: 보고서(최대 5) + 개인 목표(최대 3) = 8점 만점. 어려움 모드 +1, 싱글에서 헛짚은 제시 8회 이상 -1.
  *   S는 8점 이상, A는 6점 이상이면서 진범을 맞혀야 한다.
@@ -54,7 +73,11 @@ export function finalize(state: GameState): void {
   for (const v of Object.values(votes)) {
     if (v) { tally[v] += 1; voters += 1; }
   }
-  const { ending, top } = decideEnding(tally, voters, data.culprit);
+  const byVote = decideEnding(tally, voters, data.culprit);
+  const top = byVote.top;
+  const player = state.seats.find((s) => s.kind === 'human')!.id;
+  const npcVotes = state.seats.filter((s) => s.kind === 'npc').map((s) => votes[s.id]).filter((v): v is CharId => !!v);
+  const ending = state.mode === 'single' ? decideSoloEnding(state.reports[player], npcVotes, data) : byVote.ending;
   const scores: Partial<Record<SeatId, ScoreBreakdown>> = {};
   const goals: Partial<Record<SeatId, GoalResult[]>> = {};
   const ranks: Partial<Record<SeatId, Rank>> = {};

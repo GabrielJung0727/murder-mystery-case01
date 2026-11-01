@@ -1,7 +1,7 @@
 {
   "name": "gongjakso-night",
   "productName": "공작소 도서관",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "MURDER MYSTERY CASE 01 - 공작소의 밤 (PC 2D 추리 게임)",
   "main": "dist-electron/main.js",
   "private": true,

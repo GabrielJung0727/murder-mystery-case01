@@ -70,7 +70,7 @@ export function useGameAudio(state: GameState, you: SeatId | null, ui: UiContext
       const t = setTimeout(() => {
         audio.setScene('ending', { variant: ending === 'A' ? 'truth' : 'false' });
         // 변형 사건은 그 변형의 녹음이 있을 때만 읽는다 (audio/caseVoice.ts)
-        const voice = ending ? endingVoice(state.variant, ending) : null;
+        const voice = ending ? endingVoice(state.variant, ending, state.mode === 'single') : null;
         if (voice) audio.narrate(voice, ENDING_VOICE_DELAY);
         audio.setAmbience(0.35, 0, 2);
         audio.setBaseTension(mix.tension);

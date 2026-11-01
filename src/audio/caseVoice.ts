@@ -5,7 +5,9 @@ import type { EndingId } from '../data/story';
 import type { VariantId } from '../data/variants';
 import { hasVoice, type VoiceId } from './director';
 
-export function endingVoice(variant: VariantId, ending: EndingId): VoiceId | null {
+export function endingVoice(variant: VariantId, ending: EndingId, single = false): VoiceId | null {
+  // 싱글 B 는 득표가 아니라 입증으로 갈려, 득표를 읽는 녹음과 맞지 않는다 (ui/Ending.tsx endingText)
+  if (single && ending === 'B') return null;
   const own = `NAR-E-${ending}-${variant}`;
   if (hasVoice(own)) return own;
   if (variant === 'v0' || ending === 'D') return `NAR-E-${ending}` as VoiceId;

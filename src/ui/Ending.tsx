@@ -3,6 +3,7 @@ import { progress } from '../client/progress';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { caseOf } from '../data/caseData';
 import { CHAR_BY_ID, CHAR_IDS } from '../data/characters';
+import { josa } from '../data/josa';
 import { summarize } from '../engine/summary';
 import type { GameState, Rank, SeatId } from '../engine/types';
 import { ART, shadedBg } from '../data/art';
@@ -18,6 +19,18 @@ export const VERDICT = {
   D: { text: 'UNSOLVED', tone: 'gray' },
 } as const;
 
+/**
+ * 엔딩 본문. 싱글 B 는 득표가 아니라 입증으로 갈리므로(engine/scoring.ts decideSoloEnding)
+ * 득표를 말하는 첫 문장을 '당신은 ○○을 지목했다.' 로 바꾼다.
+ */
+function endingText(state: GameState): string {
+  const data = caseOf(state);
+  const ending = state.result!.ending;
+  const text = data.endings[ending].text;
+  if (state.mode !== 'single' || ending !== 'B') return text;
+  return `당신은 ${josa(CHAR_BY_ID[data.culprit].name, '을/를')} 지목했다. ${text.slice(text.indexOf('. ') + 2)}`;
+}
+
 export const RANK_TONE: Record<Rank, 'red' | 'amber' | 'green' | 'gray'> = { S: 'red', A: 'amber', B: 'green', C: 'gray', D: 'gray' };
 
 export function Ending({ state, you, onExit }: { state: GameState; you: SeatId | null; onExit: () => void }) {
@@ -29,6 +42,7 @@ export function Ending({ state, you, onExit }: { state: GameState; you: SeatId |
   const humans = state.seats.filter((s) => s.kind === 'human');
   const myGoals = you ? result.goals[you] ?? [] : [];
   const myRank = you ? result.ranks[you] : undefined;
+  const single = state.mode === 'single';
 
   // 이 판의 기록과 도전 과제를 한 번 반영한다
   useEffect(() => {
@@ -59,9 +73,9 @@ export function Ending({ state, you, onExit }: { state: GameState; you: SeatId |
               <Stamp tone={VERDICT[result.ending].tone} tilt={-8}><span className="verdict-stamp-text">{VERDICT[result.ending].text}</span></Stamp>
             </div>
             <div className="story">
-              {ending.text}
-              {endingVoice(state.variant, result.ending) && (
-                <div style={{ marginTop: 10 }}><VoiceButton ids={[endingVoice(state.variant, result.ending)!]} label="엔딩 다시 듣기" /></div>
+              {endingText(state)}
+              {endingVoice(state.variant, result.ending, single) && (
+                <div style={{ marginTop: 10 }}><VoiceButton ids={[endingVoice(state.variant, result.ending, single)!]} label="엔딩 다시 듣기" /></div>
               )}
             </div>
             <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
