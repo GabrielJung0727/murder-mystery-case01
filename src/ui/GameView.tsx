@@ -123,11 +123,12 @@ export function GameView(props: GameProps) {
         </section>
       </div>
 
-      {openCard && <CardModal card={openCard} state={state} you={you} dispatch={dispatch} onPresent={presentFromCard} onClose={() => setOpenCard(null)} />}
       {dossier && <Dossier state={state} you={you} onClose={() => setDossier(false)} onOpenCard={setOpenCard} />}
       {interro && you && (
         <Interrogation state={state} you={you} dispatch={dispatch} initial={interro} onOpenCard={setOpenCard} onClose={() => setInterro(null)} />
       )}
+      {/* 서류철·심문실에서도 카드를 열므로 그 위에 그린다 (같은 z-index 라 나중에 그린 창이 위) */}
+      {openCard && <CardModal card={openCard} state={state} you={you} dispatch={dispatch} onPresent={presentFromCard} onClose={() => setOpenCard(null)} />}
       {report && you && state.phase === 'final' && <FinalReport state={state} you={you} dispatch={dispatch} onClose={() => setReport(false)} />}
       {!single && <Spotlight state={state} />}
       <PhaseBanner state={state} />

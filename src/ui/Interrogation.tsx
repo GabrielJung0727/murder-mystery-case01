@@ -65,6 +65,12 @@ export function Interrogation({ state, you, dispatch, initial, onOpenCard, onClo
     || (e.speaker === target && (e.kind === 'reaction' || e.kind === 'line' || e.kind === 'reveal' || e.kind === 'system')));
   const lastReaction = [...dialog].reverse().find((e) => e.kind === 'reaction');
 
+  // 심문실 위에 연 증거 카드에서 [제시]를 누르면 그 카드를 골라 둔 채로 돌아온다
+  useEffect(() => {
+    setTarget(initial.target);
+    setPicked(initial.cards);
+  }, [initial]);
+
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [dialog.length, target]);
